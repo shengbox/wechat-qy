@@ -122,3 +122,11 @@ type RecvSuiteAuth struct {
 	TimeStamp  float64
 	AuthCorpId string
 }
+
+// RecvCreateAuth 用于记录应用套件授权创建被动响应结果
+type RecvCreateAuth struct {
+	SuiteId   string
+	AuthCode  string
+	InfoType  string
+	TimeStamp string
+}
