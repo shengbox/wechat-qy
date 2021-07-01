@@ -380,7 +380,7 @@ func (s *Suite) fetchCorpToken(corpID, permanentCode string) (*corpTokenInfo, er
 }
 
 //fetchAdminList 获取应用的管理员列表
-func (s *Suite) fetchAdminList(corpID, agentId string) (*Admin, error) {
+func (s *Suite) fetchAdminList(corpID, agentId string) ([]*Admin, error) {
 	token, err := s.tokener.Token()
 	if err != nil {
 		return nil, err
@@ -400,8 +400,11 @@ func (s *Suite) fetchAdminList(corpID, agentId string) (*Admin, error) {
 		return nil, err
 	}
 
-	result := &Admin{}
+	result := &struct {
+		Admins []*Admin `json:"admin"`
+	}{}
+
 	err = json.Unmarshal(body, result)
 
-	return result, err
+	return result.Admins, err
 }

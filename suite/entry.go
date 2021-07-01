@@ -131,12 +131,9 @@ type RecvCreateAuth struct {
 	TimeStamp string
 }
 
+// Admin 获取应用的管理员列表
 type Admin struct {
-	Errcode int    `json:"errcode"`
-	Errmsg  string `json:"errmsg"`
-	Admin   []struct {
-		Userid     string `json:"userid"`
-		OpenUserid string `json:"open_userid"`
-		AuthType   int    `json:"auth_type"`
-	} `json:"admin"`
+	Userid     string `json:"userid"`
+	OpenUserid string `json:"open_userid"`
+	AuthType   int    `json:"auth_type"`
 }
