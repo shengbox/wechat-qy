@@ -130,3 +130,13 @@ type RecvCreateAuth struct {
 	InfoType  string
 	TimeStamp string
 }
+
+type Admin struct {
+	Errcode int    `json:"errcode"`
+	Errmsg  string `json:"errmsg"`
+	Admin   []struct {
+		Userid     string `json:"userid"`
+		OpenUserid string `json:"open_userid"`
+		AuthType   int    `json:"auth_type"`
+	} `json:"admin"`
+}

@@ -20,6 +20,7 @@ const (
 	getAgentURI      = "https://qyapi.weixin.qq.com/cgi-bin/service/get_agent"
 	setAgentURI      = "https://qyapi.weixin.qq.com/cgi-bin/service/set_agent"
 	corpTokenURI     = "https://qyapi.weixin.qq.com/cgi-bin/service/get_corp_token"
+	adminListURI     = "https://qyapi.weixin.qq.com/cgi-bin/service/get_admin_list"
 )
 
 // Suite 结构体包含了应用套件的相关操作
@@ -373,6 +374,33 @@ func (s *Suite) fetchCorpToken(corpID, permanentCode string) (*corpTokenInfo, er
 	}
 
 	result := &corpTokenInfo{}
+	err = json.Unmarshal(body, result)
+
+	return result, err
+}
+
+//fetchAdminList 获取应用的管理员列表
+func (s *Suite) fetchAdminList(corpID, agentId string) (*Admin, error) {
+	token, err := s.tokener.Token()
+	if err != nil {
+		return nil, err
+	}
+
+	qs := url.Values{}
+	qs.Add("suite_access_token", token)
+	uri := adminListURI + "?" + qs.Encode()
+
+	buf, _ := json.Marshal(map[string]string{
+		"auth_corpid": corpID,
+		"agentid":     agentId,
+	})
+
+	body, err := s.client.PostJSON(uri, buf)
+	if err != nil {
+		return nil, err
+	}
+
+	result := &Admin{}
 	err = json.Unmarshal(body, result)
 
 	return result, err
