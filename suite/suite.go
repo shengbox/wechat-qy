@@ -379,8 +379,8 @@ func (s *Suite) fetchCorpToken(corpID, permanentCode string) (*corpTokenInfo, er
 	return result, err
 }
 
-//fetchAdminList 获取应用的管理员列表
-func (s *Suite) fetchAdminList(corpID, agentId string) ([]*Admin, error) {
+//GetAdminList 获取应用的管理员列表
+func (s *Suite) GetAdminList(corpID, agentId string) ([]*Admin, error) {
 	token, err := s.tokener.Token()
 	if err != nil {
 		return nil, err
