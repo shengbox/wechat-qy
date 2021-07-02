@@ -21,6 +21,7 @@ const (
 	setAgentURI      = "https://qyapi.weixin.qq.com/cgi-bin/service/set_agent"
 	corpTokenURI     = "https://qyapi.weixin.qq.com/cgi-bin/service/get_corp_token"
 	adminListURI     = "https://qyapi.weixin.qq.com/cgi-bin/service/get_admin_list"
+	installURI       = "https://open.work.weixin.qq.com/3rdapp/install"
 )
 
 // Suite 结构体包含了应用套件的相关操作
@@ -234,6 +235,43 @@ func (s *Suite) GetAuthURI(appIDs []int, redirectURI, state string) (string, err
 	qs.Add("state", state)
 
 	return authURI + "?" + qs.Encode(), nil
+}
+
+func (s *Suite) GetPreAuthCode() (*preAuthCodeInfo, error) {
+	token, err := s.tokener.Token()
+	if err != nil {
+		return nil, err
+	}
+
+	qs := url.Values{}
+	qs.Add("suite_access_token", token)
+	uri := preAuthCodeURI + "?" + qs.Encode()
+
+	body, err := s.client.GetJSON(uri)
+	if err != nil {
+		return nil, err
+	}
+
+	result := &preAuthCodeInfo{}
+	err = json.Unmarshal(body, result)
+
+	return result, err
+}
+
+// GetInstallURI 方法用于获取应用套件的授权地址
+func (s *Suite) GetInstallURI(redirectURI, state string) (string, error) {
+	preAuthCodeInfo, err := s.GetPreAuthCode()
+	if err != nil {
+		return "", err
+	}
+
+	qs := url.Values{}
+	qs.Add("suite_id", s.id)
+	qs.Add("pre_auth_code", preAuthCodeInfo.Code)
+	qs.Add("redirect_uri", redirectURI)
+	qs.Add("state", state)
+
+	return installURI + "?" + qs.Encode(), nil
 }
 
 // GetPermanentCode 方法用于获取企业的永久授权码
