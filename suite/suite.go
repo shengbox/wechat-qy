@@ -25,6 +25,8 @@ const (
 	installURI       = "https://open.work.weixin.qq.com/3rdapp/install"
 	registerCode     = "https://qyapi.weixin.qq.com/cgi-bin/service/get_register_code"
 	registerURI      = "https://open.work.weixin.qq.com/3rdservice/wework/register"
+
+	contactSyncSuccessURI = "https://qyapi.weixin.qq.com/cgi-bin/sync/contact_sync_success"
 )
 
 // Suite 结构体包含了应用套件的相关操作
@@ -490,4 +492,22 @@ func (s *Suite) GetRegisterURI(templateId string) (string, error) {
 	qs.Add("register_code", registerCodeInfo.Code)
 
 	return registerURI + "?" + qs.Encode(), nil
+}
+
+// ContactSyncSuccess 设置通讯录同步完成
+func (s *Suite) ContactSyncSuccess(accessToken string) error {
+	qs := url.Values{}
+	qs.Add("suite_access_token", accessToken)
+	uri := contactSyncSuccessURI + "?" + qs.Encode()
+
+	body, err := s.client.GetJSON(uri)
+	if err != nil {
+		return err
+	}
+
+	result := &struct {
+		ErrMsg string `json:"errmsg"`
+	}{}
+	err = json.Unmarshal(body, result)
+	return err
 }
