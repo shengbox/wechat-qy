@@ -128,7 +128,7 @@ type RecvCreateAuth struct {
 	SuiteId   string
 	AuthCode  string
 	InfoType  string
-	TimeStamp string
+	TimeStamp float64
 }
 
 // Admin 获取应用的管理员列表
@@ -136,4 +136,30 @@ type Admin struct {
 	Userid     string `json:"userid"`
 	OpenUserid string `json:"open_userid"`
 	AuthType   int    `json:"auth_type"`
+}
+
+type RegisterCodeInfo struct {
+	Code      string `json:"register_code"`
+	ExpiresIn int64  `json:"expires_in"`
+}
+
+// RecRegisterCorp 注册完成回调事件
+type RecRegisterCorp struct {
+	ServiceCorpId string
+	InfoType      string
+	TimeStamp     float64
+	RegisterCode  string
+	AuthCorpId    string
+	ContactSync   *ContactSync
+	AuthUserInfo  *AuthUserInfo
+	State         string
+}
+
+type ContactSync struct {
+	AccessToken string
+	ExpiresIn   int64
+}
+
+type AuthUserInfo struct {
+	UserId string
 }

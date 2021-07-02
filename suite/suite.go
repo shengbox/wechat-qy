@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
+	"log"
 	"net/url"
 
 	"github.com/heroicyang/wechat-crypter"
@@ -22,6 +23,8 @@ const (
 	corpTokenURI     = "https://qyapi.weixin.qq.com/cgi-bin/service/get_corp_token"
 	adminListURI     = "https://qyapi.weixin.qq.com/cgi-bin/service/get_admin_list"
 	installURI       = "https://open.work.weixin.qq.com/3rdapp/install"
+	registerCode     = "https://qyapi.weixin.qq.com/cgi-bin/service/get_register_code"
+	registerURI      = "https://open.work.weixin.qq.com/3rdservice/wework/register"
 )
 
 // Suite 结构体包含了应用套件的相关操作
@@ -130,6 +133,8 @@ func (s *Suite) Parse(body []byte, signature, timestamp, nonce string) (interfac
 		data = &RecvSuiteAuth{}
 	case "create_auth":
 		data = &RecvCreateAuth{}
+	case "register_corp":
+		data = &RecRegisterCorp{}
 	default:
 		return nil, fmt.Errorf("unknown message type: %s", probeData.InfoType)
 	}
@@ -445,4 +450,44 @@ func (s *Suite) GetAdminList(corpID, agentId string) ([]*Admin, error) {
 	err = json.Unmarshal(body, result)
 
 	return result.Admins, err
+}
+
+//GetRegisterCode 获取注册码
+func (s *Suite) GetRegisterCode(templateId string) (*RegisterCodeInfo, error) {
+	token, err := s.tokener.Token()
+	if err != nil {
+		return nil, err
+	}
+
+	qs := url.Values{}
+	qs.Add("provider_access_token", token)
+	uri := registerCode + "?" + qs.Encode()
+
+	buf, _ := json.Marshal(map[string]string{
+		"template_id": templateId,
+	})
+
+	body, err := s.client.PostJSON(uri, buf)
+	if err != nil {
+		return nil, err
+	}
+
+	result := &RegisterCodeInfo{}
+	err = json.Unmarshal(body, result)
+
+	return result, err
+}
+
+// GetRegisterURI 方法用于获取应用套件的授权地址
+func (s *Suite) GetRegisterURI(templateId string) (string, error) {
+	registerCodeInfo, err := s.GetRegisterCode(templateId)
+	if err != nil {
+		log.Println(err)
+		return "", err
+	}
+
+	qs := url.Values{}
+	qs.Add("register_code", registerCodeInfo.Code)
+
+	return registerURI + "?" + qs.Encode(), nil
 }
