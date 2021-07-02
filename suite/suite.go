@@ -497,7 +497,7 @@ func (s *Suite) GetRegisterURI(templateId string) (string, error) {
 // ContactSyncSuccess 设置通讯录同步完成
 func (s *Suite) ContactSyncSuccess(accessToken string) error {
 	qs := url.Values{}
-	qs.Add("suite_access_token", accessToken)
+	qs.Add("access_token", accessToken)
 	uri := contactSyncSuccessURI + "?" + qs.Encode()
 
 	body, err := s.client.GetJSON(uri)
