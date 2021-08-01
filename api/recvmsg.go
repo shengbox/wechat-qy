@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/heroicyang/wechat-qy/base"
+	"github.com/shengbox/wechat-qy/base"
 )
 
 // 接收事件类型

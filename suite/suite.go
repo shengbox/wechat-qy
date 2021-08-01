@@ -8,7 +8,7 @@ import (
 	"net/url"
 
 	"github.com/heroicyang/wechat-crypter"
-	"github.com/heroicyang/wechat-qy/base"
+	"github.com/shengbox/wechat-qy/base"
 )
 
 // 应用套件相关操作的 API 地址
