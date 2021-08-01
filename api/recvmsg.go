@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/xml"
 	"fmt"
+	"log"
 
 	"github.com/heroicyang/wechat-qy/base"
 )
@@ -22,6 +23,8 @@ const (
 	LocationSelectEvent  = "location_select"
 	EnterAgentEvent      = "enter_agent"
 	BatchJobResultEvent  = "batch_job_result"
+
+	ChangeExternalContactEvent = "change_external_contact"
 )
 
 // RecvBaseData 描述接收到的各类消息或事件的公共结构
@@ -173,6 +176,14 @@ type RecvBatchJobResultEvent struct {
 	BatchJob JobResultInfo
 }
 
+type RecChangeExternalContactEvent struct {
+	RecvBaseData
+	Event          string
+	ChangeType     string
+	UserID         string
+	ExternalUserID string
+}
+
 // RespBaseData 描述被动响应消息的公共结构
 type RespBaseData struct {
 	XMLName      xml.Name `xml:"xml"`
@@ -302,7 +313,10 @@ func (h *recvMsgHandler) Parse(body []byte, signature, timestamp, nonce string) 
 			data = &RecvEnterAgentEvent{}
 		case BatchJobResultEvent:
 			data = &RecvBatchJobResultEvent{}
+		case ChangeExternalContactEvent:
+			data = &RecChangeExternalContactEvent{}
 		default:
+			log.Println("origData=", origData)
 			return nil, fmt.Errorf("unknown event type: %s", probeData.Event)
 		}
 	default:
