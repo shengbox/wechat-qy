@@ -8,43 +8,8 @@ import (
 const (
 	getExternalContactURI  = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get"
 	listExternalContactURI = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/list"
+	addContactWayURI       = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/add_contact_way"
 )
-
-type ExternalContact struct {
-	Avatar         string `json:"avatar"`
-	ExternalUserid string `json:"external_userid"`
-	Gender         int    `json:"gender"`
-	Name           string `json:"name"`
-	Type           int    `json:"type"`
-}
-
-type FollowUser struct {
-	AddWay         int      `json:"add_way"`
-	Createtime     int      `json:"createtime"`
-	Description    string   `json:"description"`
-	OperUserid     string   `json:"oper_userid"`
-	Remark         string   `json:"remark"`
-	RemarkCorpName string   `json:"remark_corp_name"`
-	RemarkMobiles  []string `json:"remark_mobiles"`
-	Tags           []struct {
-		GroupName string `json:"group_name"`
-		TagId     string `json:"tag_id"`
-		TagName   string `json:"tag_name"`
-		Type      int    `json:"type"`
-	} `json:"tags"`
-	Userid string `json:"userid"`
-}
-
-type ExternalContactResp struct {
-	ExternalContact ExternalContact `json:"external_contact"`
-	FollowUser      []FollowUser    `json:"follow_user"`
-}
-
-type ExternalContactListResp struct {
-	Errcode        int      `json:"errcode"`
-	Errmsg         string   `json:"errmsg"`
-	ExternalUserid []string `json:"external_userid"`
-}
 
 // GetExternalContact 获取客户详情
 func (a *API) GetExternalContact(externalUserId string) (*ExternalContactResp, error) {
@@ -92,4 +57,26 @@ func (a *API) ListExternalContact(userid string) ([]string, error) {
 	err = json.Unmarshal(body, result)
 
 	return result.ExternalUserid, err
+}
+
+//AddContactWay 配置客户联系「联系我」方式
+func (a *API) AddContactWay(way *AddContactWayReq) (*AddContactWayResp, error) {
+	token, err := a.Tokener.Token()
+	if err != nil {
+		return nil, err
+	}
+	qs := make(url.Values)
+	qs.Add("access_token", token)
+	apiUrl := addContactWayURI + "?" + qs.Encode()
+	data, err := json.Marshal(way)
+	if err != nil {
+		return nil, err
+	}
+	body, err := a.Client.PostJSON(apiUrl, data)
+	if err != nil {
+		return nil, err
+	}
+	result := &AddContactWayResp{}
+	err = json.Unmarshal(body, result)
+	return result, err
 }
