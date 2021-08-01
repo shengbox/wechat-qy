@@ -6,7 +6,8 @@ import (
 )
 
 const (
-	getExternalContactURI = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get"
+	getExternalContactURI  = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get"
+	listExternalContactURI = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/list"
 )
 
 type ExternalContact struct {
@@ -39,6 +40,12 @@ type ExternalContactResp struct {
 	FollowUser      []FollowUser    `json:"follow_user"`
 }
 
+type ExternalContactListResp struct {
+	Errcode        int      `json:"errcode"`
+	Errmsg         string   `json:"errmsg"`
+	ExternalUserid []string `json:"external_userid"`
+}
+
 // GetExternalContact 获取客户详情
 func (a *API) GetExternalContact(externalUserId string) (*ExternalContactResp, error) {
 	token, err := a.Tokener.Token()
@@ -57,8 +64,32 @@ func (a *API) GetExternalContact(externalUserId string) (*ExternalContactResp, e
 		return nil, err
 	}
 
-	user := &ExternalContactResp{}
-	err = json.Unmarshal(body, user)
+	result := &ExternalContactResp{}
+	err = json.Unmarshal(body, result)
 
-	return user, err
+	return result, err
+}
+
+// ListExternalContact 获取客户列表
+func (a *API) ListExternalContact(userid string) ([]string, error) {
+	token, err := a.Tokener.Token()
+	if err != nil {
+		return nil, err
+	}
+
+	qs := make(url.Values)
+	qs.Add("access_token", token)
+	qs.Add("userid", userid)
+
+	apiUrl := listExternalContactURI + "?" + qs.Encode()
+
+	body, err := a.Client.GetJSON(apiUrl)
+	if err != nil {
+		return nil, err
+	}
+
+	result := &ExternalContactListResp{}
+	err = json.Unmarshal(body, result)
+
+	return result.ExternalUserid, err
 }
