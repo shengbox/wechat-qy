@@ -8,5 +8,5 @@
 package wechat
 
 import (
-	_ "github.com/heroicyang/wechat-qy/suite"
+	_ "github.com/shengbox/wechat-qy/suite"
 )
