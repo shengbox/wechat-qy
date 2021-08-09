@@ -81,3 +81,58 @@ type AddContactWayResp struct {
 	ConfigId string `json:"config_id"`
 	QrCode   string `json:"qr_code"`
 }
+
+type UserBehaviorDataReq struct {
+	Userid    []string `json:"userid"`
+	Partyid   []int    `json:"partyid"`
+	StartTime int64    `json:"start_time"`
+	EndTime   int64    `json:"end_time"`
+}
+
+type UserBehaviorDataResp struct {
+	Errcode      int            `json:"errcode"`
+	Errmsg       string         `json:"errmsg"`
+	BehaviorData []BehaviorData `json:"behavior_data"`
+}
+
+type BehaviorData struct {
+	StatTime            int     `json:"stat_time"`
+	ChatCnt             int     `json:"chat_cnt"`
+	MessageCnt          int     `json:"message_cnt"`
+	ReplyPercentage     float64 `json:"reply_percentage"`
+	AvgReplyTime        int     `json:"avg_reply_time"`
+	NegativeFeedbackCnt int     `json:"negative_feedback_cnt"`
+	NewApplyCnt         int     `json:"new_apply_cnt"`
+	NewContactCnt       int     `json:"new_contact_cnt"`
+}
+
+type GroupChatStatisticReq struct {
+	DayBeginTime int64 `json:"day_begin_time"`
+	DayEndTime   int64 `json:"day_end_time"`
+	OwnerFilter  struct {
+		UseridList []string `json:"userid_list"`
+	} `json:"owner_filter"`
+	OrderBy  int `json:"order_by"`
+	OrderAsc int `json:"order_asc"`
+	Offset   int `json:"offset"`
+	Limit    int `json:"limit"`
+}
+
+type GroupChatStatisticResp struct {
+	Errcode    int    `json:"errcode"`
+	Errmsg     string `json:"errmsg"`
+	Total      int    `json:"total"`
+	NextOffset int    `json:"next_offset"`
+	Items      []struct {
+		Owner string `json:"owner"`
+		Data  struct {
+			NewChatCnt   int `json:"new_chat_cnt"`
+			ChatTotal    int `json:"chat_total"`
+			ChatHasMsg   int `json:"chat_has_msg"`
+			NewMemberCnt int `json:"new_member_cnt"`
+			MemberTotal  int `json:"member_total"`
+			MemberHasMsg int `json:"member_has_msg"`
+			MsgTotal     int `json:"msg_total"`
+		} `json:"data"`
+	} `json:"items"`
+}
