@@ -1,5 +1,10 @@
 package api
 
+type BaseResp struct {
+	Errcode int    `json:"errcode"`
+	Errmsg  string `json:"errmsg"`
+}
+
 type ExternalContact struct {
 	Avatar         string `json:"avatar"`
 	ExternalUserid string `json:"external_userid"`
@@ -32,8 +37,7 @@ type ExternalContactResp struct {
 }
 
 type ExternalContactListResp struct {
-	Errcode        int      `json:"errcode"`
-	Errmsg         string   `json:"errmsg"`
+	BaseResp       `json:",inline"`
 	ExternalUserid []string `json:"external_userid"`
 }
 
@@ -76,8 +80,7 @@ type Conclusions struct {
 }
 
 type AddContactWayResp struct {
-	Errcode  int    `json:"errcode"`
-	Errmsg   string `json:"errmsg"`
+	BaseResp `json:",inline"`
 	ConfigId string `json:"config_id"`
 	QrCode   string `json:"qr_code"`
 }
@@ -90,8 +93,7 @@ type UserBehaviorDataReq struct {
 }
 
 type UserBehaviorDataResp struct {
-	Errcode      int            `json:"errcode"`
-	Errmsg       string         `json:"errmsg"`
+	BaseResp     `json:",inline"`
 	BehaviorData []BehaviorData `json:"behavior_data"`
 }
 
@@ -119,10 +121,9 @@ type GroupChatStatisticReq struct {
 }
 
 type GroupChatStatisticResp struct {
-	Errcode    int    `json:"errcode"`
-	Errmsg     string `json:"errmsg"`
-	Total      int    `json:"total"`
-	NextOffset int    `json:"next_offset"`
+	BaseResp   `json:",inline"`
+	Total      int `json:"total"`
+	NextOffset int `json:"next_offset"`
 	Items      []struct {
 		Owner string `json:"owner"`
 		Data  struct {
@@ -135,4 +136,66 @@ type GroupChatStatisticResp struct {
 			MsgTotal     int `json:"msg_total"`
 		} `json:"data"`
 	} `json:"items"`
+}
+
+//ExternalContactRemark 修改客户备注信息
+type ExternalContactRemark struct {
+	Userid           string   `json:"userid"`
+	ExternalUserid   string   `json:"external_userid"`
+	Remark           string   `json:"remark,omitempty"`
+	Description      string   `json:"description,omitempty"`        // 此用户对外部联系人的描述，最多150个字符
+	RemarkCompany    string   `json:"remark_company,omitempty"`     // 此用户对外部联系人备注的所属公司名称，最多20个字符
+	RemarkMobiles    []string `json:"remark_mobiles,omitempty"`     // 此用户对外部联系人备注的手机号
+	RemarkPicMediaid string   `json:"remark_pic_mediaid,omitempty"` // 备注图片的mediaid，
+}
+
+//GroupChatReq 获取客户群列表
+type GroupChatReq struct {
+	StatusFilter int `json:"status_filter,omitempty"` // 客户群跟进状态过滤。
+	OwnerFilter  struct {
+		UseridList []string `json:"userid_list"`
+	} `json:"owner_filter,omitempty"` // 群主过滤。
+	Cursor string `json:"cursor,omitempty"` // 用于分页查询的游标，字符串类型，由上一次调用返回，首次调用不填
+	Limit  int    `json:"limit"`
+}
+
+//GroupChatResp 获取客户群列表
+type GroupChatResp struct {
+	BaseResp      `json:",inline"`
+	GroupChatList []struct {
+		ChatId string `json:"chat_id"`
+		Status int    `json:"status"`
+	} `json:"group_chat_list"`
+	NextCursor string `json:"next_cursor"`
+}
+
+type GroupChatGetReq struct {
+	ChatId   string `json:"chat_id"`
+	NeedName int    `json:"need_name"`
+}
+
+type GroupChatGetResp struct {
+	BaseResp  `json:",inline"`
+	GroupChat struct {
+		ChatId     string `json:"chat_id"`
+		Name       string `json:"name"`
+		Owner      string `json:"owner"`
+		CreateTime int    `json:"create_time"`
+		Notice     string `json:"notice"`
+		MemberList []struct {
+			Userid    string `json:"userid"`
+			Type      int    `json:"type"`
+			JoinTime  int    `json:"join_time"`
+			JoinScene int    `json:"join_scene"`
+			Invitor   struct {
+				Userid string `json:"userid"`
+			} `json:"invitor,omitempty"`
+			GroupNickname string `json:"group_nickname"`
+			Name          string `json:"name"`
+			Unionid       string `json:"unionid,omitempty"`
+		} `json:"member_list"`
+		AdminList []struct {
+			Userid string `json:"userid"`
+		} `json:"admin_list"`
+	} `json:"group_chat"`
 }

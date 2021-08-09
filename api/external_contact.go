@@ -6,11 +6,14 @@ import (
 )
 
 const (
-	getExternalContactURI  = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get"
-	listExternalContactURI = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/list"
-	addContactWayURI       = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/add_contact_way"
-	getUserBehaviorDataURI = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get_user_behavior_data"
-	groupChatStatisticURI  = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/groupchat/statistic"
+	getExternalContactURI    = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get"
+	listExternalContactURI   = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/list"
+	addContactWayURI         = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/add_contact_way"
+	getUserBehaviorDataURI   = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get_user_behavior_data"
+	groupChatStatisticURI    = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/groupchat/statistic"
+	externalContactRemarkURI = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/remark"
+	externalGroupChatListURI = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/groupchat/list"
+	externalGroupChatGetURI  = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/groupchat/get"
 )
 
 // GetExternalContact 获取客户详情
@@ -123,6 +126,70 @@ func (a *API) GetGroupChatStatistic(req *GroupChatStatisticReq) (*GroupChatStati
 		return nil, err
 	}
 	result := &GroupChatStatisticResp{}
+	err = json.Unmarshal(body, result)
+	return result, err
+}
+
+// ExternalContactRemark 修改客户备注信息
+func (a *API) ExternalContactRemark(req *ExternalContactRemark) error {
+	token, err := a.Tokener.Token()
+	if err != nil {
+		return err
+	}
+	qs := make(url.Values)
+	qs.Add("access_token", token)
+	apiUrl := externalContactRemarkURI + "?" + qs.Encode()
+	data, err := json.Marshal(req)
+	if err != nil {
+		return err
+	}
+	_, err = a.Client.PostJSON(apiUrl, data)
+	if err != nil {
+		return err
+	}
+	return err
+}
+
+// ExternalGroupChatList 获取客户群列表
+func (a *API) ExternalGroupChatList(req *GroupChatReq) (*GroupChatResp, error) {
+	token, err := a.Tokener.Token()
+	if err != nil {
+		return nil, err
+	}
+	qs := make(url.Values)
+	qs.Add("access_token", token)
+	apiUrl := externalGroupChatListURI + "?" + qs.Encode()
+	data, err := json.Marshal(req)
+	if err != nil {
+		return nil, err
+	}
+	body, err := a.Client.PostJSON(apiUrl, data)
+	if err != nil {
+		return nil, err
+	}
+	result := &GroupChatResp{}
+	err = json.Unmarshal(body, result)
+	return result, err
+}
+
+// GroupChatGetUGet 获取客户群详情
+func (a *API) GroupChatGetUGet(req *GroupChatGetReq) (*GroupChatGetResp, error) {
+	token, err := a.Tokener.Token()
+	if err != nil {
+		return nil, err
+	}
+	qs := make(url.Values)
+	qs.Add("access_token", token)
+	apiUrl := externalGroupChatGetURI + "?" + qs.Encode()
+	data, err := json.Marshal(req)
+	if err != nil {
+		return nil, err
+	}
+	body, err := a.Client.PostJSON(apiUrl, data)
+	if err != nil {
+		return nil, err
+	}
+	result := &GroupChatGetResp{}
 	err = json.Unmarshal(body, result)
 	return result, err
 }
