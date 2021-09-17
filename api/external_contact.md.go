@@ -11,6 +11,7 @@ type ExternalContact struct {
 	Gender         int    `json:"gender"`
 	Name           string `json:"name"`
 	Type           int    `json:"type"`
+	Unionid        string `json:"unionid"`
 }
 
 type FollowUser struct {
