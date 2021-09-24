@@ -17,7 +17,7 @@ type ExternalContact struct {
 type FollowUser struct {
 	AddWay         int      `json:"add_way"` // 该成员添加此客户的来源，具体含义详见来源定义
 	Createtime     int      `json:"createtime"`
-	Deletetime     int      `json:"deletetime"`
+	Deletetime     int64    `json:"deletetime"`
 	Description    string   `json:"description"`
 	OperUserid     string   `json:"oper_userid"`
 	State          string   `json:"state"` // 企业自定义的state参数，用于区分客户具体是通过哪个「联系我」添加，由企业通过创建「联系我」方式指定
