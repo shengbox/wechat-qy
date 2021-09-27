@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/url"
 )
 
@@ -14,6 +15,8 @@ const (
 	externalContactRemarkURI = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/remark"
 	externalGroupChatListURI = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/groupchat/list"
 	externalGroupChatGetURI  = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/groupchat/get"
+	getCorpTagListURI        = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get_corp_tag_list"
+	markTagURI               = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/mark_tag"
 )
 
 // GetExternalContact 获取客户详情
@@ -33,6 +36,7 @@ func (a *API) GetExternalContact(externalUserId string) (*ExternalContactResp, e
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println(string(body))
 
 	result := &ExternalContactResp{}
 	err = json.Unmarshal(body, result)
@@ -190,6 +194,50 @@ func (a *API) GroupChatGetUGet(req *GroupChatGetReq) (*GroupChatGetResp, error) 
 		return nil, err
 	}
 	result := &GroupChatGetResp{}
+	err = json.Unmarshal(body, result)
+	return result, err
+}
+
+// GetCorpTagList 获取企业标签库
+func (a *API) GetCorpTagList(req interface{}) ([]TagGroup, error) {
+	token, err := a.Tokener.Token()
+	if err != nil {
+		return nil, err
+	}
+	qs := make(url.Values)
+	qs.Add("access_token", token)
+	apiUrl := getCorpTagListURI + "?" + qs.Encode()
+	data, err := json.Marshal(req)
+	if err != nil {
+		return nil, err
+	}
+	body, err := a.Client.PostJSON(apiUrl, data)
+	if err != nil {
+		return nil, err
+	}
+	result := &CorpTagListResp{}
+	err = json.Unmarshal(body, result)
+	return result.TagGroup, err
+}
+
+// MarkTag 编辑客户企业标签
+func (a *API) MarkTag(req *MakeTagReq) (*BaseResp, error) {
+	token, err := a.Tokener.Token()
+	if err != nil {
+		return nil, err
+	}
+	qs := make(url.Values)
+	qs.Add("access_token", token)
+	apiUrl := markTagURI + "?" + qs.Encode()
+	data, err := json.Marshal(req)
+	if err != nil {
+		return nil, err
+	}
+	body, err := a.Client.PostJSON(apiUrl, data)
+	if err != nil {
+		return nil, err
+	}
+	result := &BaseResp{}
 	err = json.Unmarshal(body, result)
 	return result, err
 }

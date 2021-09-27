@@ -201,3 +201,28 @@ type GroupChatGetResp struct {
 		} `json:"admin_list"`
 	} `json:"group_chat"`
 }
+
+type CorpTagListResp struct {
+	BaseResp `json:",inline"`
+	TagGroup []TagGroup `json:"tag_group"`
+}
+
+type TagGroup struct {
+	GroupId    string `json:"group_id"`
+	GroupName  string `json:"group_name"`
+	CreateTime int    `json:"create_time"`
+	Tag        []struct {
+		Id         string `json:"id"`
+		Name       string `json:"name"`
+		CreateTime int    `json:"create_time"`
+		Order      int    `json:"order"`
+	} `json:"tag"`
+	Order int `json:"order"`
+}
+
+type MakeTagReq struct {
+	Userid         string   `json:"userid"`
+	ExternalUserid string   `json:"external_userid"`
+	AddTag         []string `json:"add_tag"`
+	RemoveTag      []string `json:"remove_tag"`
+}
