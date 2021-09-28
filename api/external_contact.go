@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/url"
 )
 
@@ -36,7 +35,6 @@ func (a *API) GetExternalContact(externalUserId string) (*ExternalContactResp, e
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(string(body))
 
 	result := &ExternalContactResp{}
 	err = json.Unmarshal(body, result)
