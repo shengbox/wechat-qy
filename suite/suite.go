@@ -202,6 +202,10 @@ func (s *Suite) FetchToken() (token string, expiresIn int64, err error) {
 	token = tokenInfo.Token
 	expiresIn = tokenInfo.ExpiresIn
 
+	if token == "" {
+		log.Println(string(body))
+	}
+
 	return
 }
 
