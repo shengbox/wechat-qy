@@ -30,6 +30,7 @@ const (
 
 	contactSyncSuccessURI = "https://qyapi.weixin.qq.com/cgi-bin/sync/contact_sync_success"
 	getuserinfo3rdURI     = "https://qyapi.weixin.qq.com/cgi-bin/service/getuserinfo3rd"
+	getuserdetail3rdURI   = "https://qyapi.weixin.qq.com/cgi-bin/service/getuserdetail3rd"
 )
 
 // Suite 结构体包含了应用套件的相关操作
@@ -538,6 +539,23 @@ func (s *Suite) Getuserinfo3rd(code string) (*UserInfo3RD, error) {
 		"suite_access_token": token,
 		"code":               code,
 	}).Get(getuserinfo3rdURI)
+
+	if result.Errcode > 0 {
+		return nil, errors.New(result.Errmsg)
+	}
+	return &result, err
+}
+
+//Getuserdetail3rd 获取访问用户敏感信息
+func (s *Suite) Getuserdetail3rd(userTicket string) (*UserInfoDetail3RD, error) {
+	token, err := s.tokener.Token()
+	if err != nil {
+		return nil, err
+	}
+	var result UserInfoDetail3RD
+	_, err = resty.New().R().SetResult(&result).SetQueryParam("suite_access_token", token).SetBody(map[string]string{
+		"user_ticket": userTicket,
+	}).Post(getuserdetail3rdURI)
 
 	if result.Errcode > 0 {
 		return nil, errors.New(result.Errmsg)
