@@ -124,6 +124,7 @@ func (s *Suite) Parse(body []byte, signature, timestamp, nonce string) (interfac
 
 	probeData := &struct {
 		InfoType string
+		Event    string
 	}{}
 
 	if err = xml.Unmarshal(origData, probeData); err != nil {
@@ -141,7 +142,12 @@ func (s *Suite) Parse(body []byte, signature, timestamp, nonce string) (interfac
 	case "register_corp":
 		data = &RecRegisterCorp{}
 	default:
-		return nil, fmt.Errorf("unknown message type: %s", probeData.InfoType)
+		switch probeData.Event {
+		case "change_app_admin":
+			data = &RecvChangeAppAdmin{}
+		default:
+			return nil, fmt.Errorf("unknown message type: %s", probeData.InfoType)
+		}
 	}
 
 	if err = xml.Unmarshal(origData, data); err != nil {

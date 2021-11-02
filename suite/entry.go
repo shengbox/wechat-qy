@@ -131,6 +131,15 @@ type RecvCreateAuth struct {
 	TimeStamp float64
 }
 
+type RecvChangeAppAdmin struct {
+	ToUserName   string
+	FromUserName string
+	CreateTime   int64
+	MsgType      string
+	AgentID      int64
+	Event        string
+}
+
 // Admin 获取应用的管理员列表
 type Admin struct {
 	Userid     string `json:"userid"`
