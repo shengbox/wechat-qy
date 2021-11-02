@@ -3,11 +3,13 @@ package suite
 import (
 	"encoding/json"
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"log"
 	"net/url"
 
-	"github.com/heroicyang/wechat-crypter"
+	"github.com/go-resty/resty/v2"
+	crypter "github.com/heroicyang/wechat-crypter"
 	"github.com/shengbox/wechat-qy/base"
 )
 
@@ -27,6 +29,7 @@ const (
 	registerURI      = "https://open.work.weixin.qq.com/3rdservice/wework/register"
 
 	contactSyncSuccessURI = "https://qyapi.weixin.qq.com/cgi-bin/sync/contact_sync_success"
+	getuserinfo3rdURI     = "https://qyapi.weixin.qq.com/cgi-bin/service/getuserinfo3rd?suite_access_token=SUITE_ACCESS_TOKEN&code=CODE"
 )
 
 // Suite 结构体包含了应用套件的相关操作
@@ -510,4 +513,22 @@ func (s *Suite) ContactSyncSuccess(accessToken string) error {
 	}{}
 	err = json.Unmarshal(body, result)
 	return err
+}
+
+//Getuserinfo3rd 获取访问用户身份
+func (s *Suite) Getuserinfo3rd(code string) (*UserInfo3RD, error) {
+	token, err := s.tokener.Token()
+	if err != nil {
+		return nil, err
+	}
+	var result UserInfo3RD
+	_, err = resty.New().R().SetResult(&result).SetQueryParams(map[string]string{
+		"suite_access_token": token,
+		"code":               code,
+	}).Get(getuserinfo3rdURI)
+
+	if result.Errcode > 0 {
+		return nil, errors.New(result.Errmsg)
+	}
+	return &result, err
 }
