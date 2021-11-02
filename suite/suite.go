@@ -145,8 +145,10 @@ func (s *Suite) Parse(body []byte, signature, timestamp, nonce string) (interfac
 		switch probeData.Event {
 		case "change_app_admin":
 			data = &RecvChangeAppAdmin{}
+		case "subscribe":
+			data = &RecvChangeAppAdmin{}
 		default:
-			return nil, fmt.Errorf("unknown message type: %s", probeData.InfoType)
+			return nil, fmt.Errorf("unknown message type: %s origData: %s", probeData.InfoType, origData)
 		}
 	}
 
