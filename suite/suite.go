@@ -29,7 +29,7 @@ const (
 	registerURI      = "https://open.work.weixin.qq.com/3rdservice/wework/register"
 
 	contactSyncSuccessURI = "https://qyapi.weixin.qq.com/cgi-bin/sync/contact_sync_success"
-	getuserinfo3rdURI     = "https://qyapi.weixin.qq.com/cgi-bin/service/getuserinfo3rd?suite_access_token=SUITE_ACCESS_TOKEN&code=CODE"
+	getuserinfo3rdURI     = "https://qyapi.weixin.qq.com/cgi-bin/service/getuserinfo3rd"
 )
 
 // Suite 结构体包含了应用套件的相关操作
