@@ -33,6 +33,9 @@ const (
 	getuserinfo3rdURI     = "https://qyapi.weixin.qq.com/cgi-bin/service/getuserinfo3rd"
 	getuserdetail3rdURI   = "https://qyapi.weixin.qq.com/cgi-bin/service/getuserdetail3rd"
 	getLoginInfoURI       = "https://qyapi.weixin.qq.com/cgi-bin/service/get_login_info"
+	uploadURI             = "https://qyapi.weixin.qq.com/cgi-bin/service/media/upload"
+	idTranslateURI        = "https://qyapi.weixin.qq.com/cgi-bin/service/contact/id_translate"
+	getJobResultURI       = "https://qyapi.weixin.qq.com/cgi-bin/service/batch/getresult"
 )
 
 // Suite 结构体包含了应用套件的相关操作
@@ -580,18 +583,18 @@ func (s *Suite) GetLoginInfo(authCode string) (*LoginInfo, error) {
 	return &result, err
 }
 
+// ContactIdTranslate 获取转义文件url
 func (s *Suite) ContactIdTranslate(corpid string, fileByte []byte) (string, error) {
 	token, err := s.tokener.Token()
 	if err != nil {
 		return "", err
 	}
+	client := resty.New()
 	var media MediaInfo
-	resp, err := resty.New().R().SetResult(&media).
-		SetQueryParam("provider_access_token", token).
-		SetQueryParam("type", "file").
+	_, err = client.R().SetResult(&media).
+		SetQueryParam("provider_access_token", token).SetQueryParam("type", "file").
 		SetFileReader("media", "aaa.csv", bytes.NewReader(fileByte)).
-		Post("https://qyapi.weixin.qq.com/cgi-bin/service/media/upload")
-	log.Println("upload", resp.String(), err)
+		Post(uploadURI)
 	if err != nil {
 		return "", err
 	}
@@ -600,16 +603,14 @@ func (s *Suite) ContactIdTranslate(corpid string, fileByte []byte) (string, erro
 	}
 
 	var job JobInfo
-	resp, err = resty.New().R().SetResult(&job).
+	_, err = client.R().SetResult(&job).
 		SetQueryParam("provider_access_token", token).
 		SetBody(map[string]interface{}{
 			"auth_corpid":        corpid,
 			"media_id_list":      []string{media.MediaID},
 			"output_file_name":   "名单",
 			"output_file_format": "pdf",
-		}).
-		Post("https://qyapi.weixin.qq.com/cgi-bin/service/contact/id_translate")
-	log.Println("id_translate", resp.String(), err)
+		}).Post(idTranslateURI)
 	if err != nil {
 		return "", err
 	}
@@ -618,12 +619,9 @@ func (s *Suite) ContactIdTranslate(corpid string, fileByte []byte) (string, erro
 	}
 
 	var result JobResult
-	resp, err = resty.New().R().SetResult(&result).
-		SetQueryParams(map[string]string{
-			"provider_access_token": token,
-			"jobid":                 job.Jobid,
-		}).Get("https://qyapi.weixin.qq.com/cgi-bin/service/batch/getresult")
-	log.Println("getresult", resp.String(), err)
+	_, err = client.R().SetResult(&result).
+		SetQueryParam("provider_access_token", token).
+		SetQueryParam("jobid", job.Jobid).Get(getJobResultURI)
 	if result.Errcode > 0 {
 		return "", errors.New(result.Errmsg)
 	}
