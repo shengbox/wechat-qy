@@ -131,7 +131,7 @@ type RecvCreateAuth struct {
 	TimeStamp float64
 }
 
-type RecvChangeAppAdmin struct {
+type RecvChangeEvent struct {
 	ToUserName   string
 	FromUserName string
 	CreateTime   int64
