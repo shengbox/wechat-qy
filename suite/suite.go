@@ -1,6 +1,7 @@
 package suite
 
 import (
+	"bytes"
 	"encoding/json"
 	"encoding/xml"
 	"errors"
@@ -577,4 +578,54 @@ func (s *Suite) GetLoginInfo(authCode string) (*LoginInfo, error) {
 		return nil, errors.New(result.Errmsg)
 	}
 	return &result, err
+}
+
+func (s *Suite) ContactIdTranslate(corpid string, fileByte []byte) (string, error) {
+	token, err := s.tokener.Token()
+	if err != nil {
+		return "", err
+	}
+	var media MediaInfo
+	resp, err := resty.New().R().SetResult(&media).
+		SetQueryParam("provider_access_token", token).
+		SetQueryParam("type", "file").
+		SetFileReader("media", "aaa.csv", bytes.NewReader(fileByte)).
+		Post("https://qyapi.weixin.qq.com/cgi-bin/service/media/upload")
+	log.Println("upload", resp.String(), err)
+	if err != nil {
+		return "", err
+	}
+	if media.Errcode > 0 {
+		return "", errors.New(media.Errmsg)
+	}
+
+	var job JobInfo
+	resp, err = resty.New().R().SetResult(&job).
+		SetQueryParam("provider_access_token", token).
+		SetBody(map[string]interface{}{
+			"auth_corpid":        corpid,
+			"media_id_list":      []string{media.MediaID},
+			"output_file_name":   "名单",
+			"output_file_format": "pdf",
+		}).
+		Post("https://qyapi.weixin.qq.com/cgi-bin/service/contact/id_translate")
+	log.Println("id_translate", resp.String(), err)
+	if err != nil {
+		return "", err
+	}
+	if job.Errcode > 0 {
+		return "", errors.New(job.Errmsg)
+	}
+
+	var result JobResult
+	resp, err = resty.New().R().SetResult(&result).
+		SetQueryParams(map[string]string{
+			"provider_access_token": token,
+			"jobid":                 job.Jobid,
+		}).Get("https://qyapi.weixin.qq.com/cgi-bin/service/batch/getresult")
+	log.Println("getresult", resp.String(), err)
+	if result.Errcode > 0 {
+		return "", errors.New(result.Errmsg)
+	}
+	return result.Result.ContactIDTranslate.URL, err
 }
