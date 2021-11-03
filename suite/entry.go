@@ -12,14 +12,17 @@ type corpTokenInfo struct {
 
 // Corporation 用于表示授权方企业信息
 type Corporation struct {
-	ID            string `json:"corpid"`
-	Name          string `json:"corp_name"`
-	Type          string `json:"corp_type"`
-	RoundLogoURI  string `json:"corp_round_logo_url"`
-	SquareLogoURI string `json:"corp_square_logo_url"`
-	UserMax       int    `json:"corp_user_max"`
-	AgentMax      int    `json:"corp_agent_max"`
-	QRCode        string `json:"corp_wxqrcode"`
+	ID              string `json:"corpid"`
+	Name            string `json:"corp_name"`
+	CorpFullName    string `json:"corp_full_name"`
+	Type            string `json:"corp_type"`
+	RoundLogoURI    string `json:"corp_round_logo_url"`
+	SquareLogoURI   string `json:"corp_square_logo_url"`
+	UserMax         int    `json:"corp_user_max"`
+	AgentMax        int    `json:"corp_agent_max"`
+	QRCode          string `json:"corp_wxqrcode"`
+	SubjectType     string `json:"subject_type"`
+	VerifiedEndTime string `json:"verified_end_time"`
 }
 
 // Agent 用于表示应用基本信息
