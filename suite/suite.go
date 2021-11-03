@@ -31,6 +31,7 @@ const (
 	contactSyncSuccessURI = "https://qyapi.weixin.qq.com/cgi-bin/sync/contact_sync_success"
 	getuserinfo3rdURI     = "https://qyapi.weixin.qq.com/cgi-bin/service/getuserinfo3rd"
 	getuserdetail3rdURI   = "https://qyapi.weixin.qq.com/cgi-bin/service/getuserdetail3rd"
+	getLoginInfoURI       = "https://qyapi.weixin.qq.com/cgi-bin/service/get_login_info"
 )
 
 // Suite 结构体包含了应用套件的相关操作
@@ -556,6 +557,23 @@ func (s *Suite) Getuserdetail3rd(userTicket string) (*UserInfoDetail3RD, error) 
 	_, err = resty.New().R().SetResult(&result).SetQueryParam("suite_access_token", token).SetBody(map[string]string{
 		"user_ticket": userTicket,
 	}).Post(getuserdetail3rdURI)
+
+	if result.Errcode > 0 {
+		return nil, errors.New(result.Errmsg)
+	}
+	return &result, err
+}
+
+//GetLoginInfo 获取登录用户信息
+func (s *Suite) GetLoginInfo(authCode string) (*LoginInfo, error) {
+	token, err := s.tokener.Token()
+	if err != nil {
+		return nil, err
+	}
+	var result LoginInfo
+	_, err = resty.New().R().SetResult(&result).SetQueryParam("access_token", token).SetBody(map[string]string{
+		"auth_code": authCode,
+	}).Post(getLoginInfoURI)
 
 	if result.Errcode > 0 {
 		return nil, errors.New(result.Errmsg)
