@@ -603,8 +603,7 @@ func (s *Suite) ContactIdTranslate(corpid string, fileByte []byte) (string, erro
 	}
 
 	var job JobInfo
-	_, err = client.R().SetResult(&job).
-		SetQueryParam("provider_access_token", token).
+	_, err = client.R().SetResult(&job).SetQueryParam("provider_access_token", token).
 		SetBody(map[string]interface{}{
 			"auth_corpid":        corpid,
 			"media_id_list":      []string{media.MediaID},
@@ -617,13 +616,24 @@ func (s *Suite) ContactIdTranslate(corpid string, fileByte []byte) (string, erro
 	if job.Errcode > 0 {
 		return "", errors.New(job.Errmsg)
 	}
+	return job.Jobid, nil
+}
 
-	var result JobResult
-	_, err = client.R().SetResult(&result).
-		SetQueryParam("provider_access_token", token).
-		SetQueryParam("jobid", job.Jobid).Get(getJobResultURI)
-	if result.Errcode > 0 {
-		return "", errors.New(result.Errmsg)
+// GetJobResultURI 获取任务结果
+func (s *Suite) GetJobResultURI(jobID string) (*JobResult, error) {
+	token, err := s.tokener.Token()
+	if err != nil {
+		return nil, err
 	}
-	return result.Result.ContactIDTranslate.URL, err
+	var result JobResult
+	_, err = resty.New().R().SetResult(&result).
+		SetQueryParam("provider_access_token", token).
+		SetQueryParam("jobid", jobID).Get(getJobResultURI)
+	if err != nil {
+		return nil, err
+	}
+	if result.Errcode > 0 {
+		return nil, errors.New(result.Errmsg)
+	}
+	return &result, err
 }
