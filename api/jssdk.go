@@ -11,11 +11,20 @@ import (
 )
 
 const (
-	jsSDKTicketURI = "https://qyapi.weixin.qq.com/cgi-bin/get_jsapi_ticket"
+	jsSDKTicketURI      = "https://qyapi.weixin.qq.com/cgi-bin/get_jsapi_ticket"
+	jsSDKAgentTicketURI = "https://qyapi.weixin.qq.com/cgi-bin/ticket/get"
 )
 
-// GetJSSDKSignature 方法用于获取 JSSDK 的签名
 func (a *API) GetJSSDKSignature(uri, timestamp, noncestr string) (string, error) {
+	return a.getJSSDKSignature(jsSDKTicketURI, uri, timestamp, noncestr, "")
+}
+
+func (a *API) GetJSSDKAgentSignature(uri, timestamp, noncestr string) (string, error) {
+	return a.getJSSDKSignature(jsSDKAgentTicketURI, uri, timestamp, noncestr, "agent_config")
+}
+
+// GetJSSDKSignature 方法用于获取 JSSDK 的签名
+func (a *API) getJSSDKSignature(api, uri, timestamp, noncestr, typeStr string) (string, error) {
 	token, err := a.Tokener.Token()
 	if err != nil {
 		return "", err
@@ -23,8 +32,11 @@ func (a *API) GetJSSDKSignature(uri, timestamp, noncestr string) (string, error)
 
 	qs := make(url.Values)
 	qs.Add("access_token", token)
+	if typeStr != "" {
+		qs.Add("type", typeStr)
+	}
 
-	ticketURL := jsSDKTicketURI + "?" + qs.Encode()
+	ticketURL := api + "?" + qs.Encode()
 
 	body, err := a.Client.GetJSON(ticketURL)
 	if err != nil {
