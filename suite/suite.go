@@ -593,7 +593,7 @@ func (s *Suite) ContactIdTranslate(corpid string, fileByte []byte) (string, erro
 	var media MediaInfo
 	_, err = client.R().SetResult(&media).
 		SetQueryParam("provider_access_token", token).SetQueryParam("type", "file").
-		SetFileReader("media", "aaa.csv", bytes.NewReader(fileByte)).
+		SetFileReader("media", "员工列表.csv", bytes.NewReader(fileByte)).
 		Post(uploadURI)
 	if err != nil {
 		return "", err
@@ -605,10 +605,10 @@ func (s *Suite) ContactIdTranslate(corpid string, fileByte []byte) (string, erro
 	var job JobInfo
 	_, err = client.R().SetResult(&job).SetQueryParam("provider_access_token", token).
 		SetBody(map[string]interface{}{
-			"auth_corpid":        corpid,
-			"media_id_list":      []string{media.MediaID},
-			"output_file_name":   "名单",
-			"output_file_format": "pdf",
+			"auth_corpid":   corpid,
+			"media_id_list": []string{media.MediaID},
+			// "output_file_name": "员工列表",
+			// "output_file_format": "pdf",
 		}).Post(idTranslateURI)
 	if err != nil {
 		return "", err
