@@ -54,3 +54,8 @@ func (t *Tokener) isValidToken() bool {
 
 	return true
 }
+
+type Ticket struct {
+	Ticket    string `json:"ticket"`
+	ExpiresIn int64  `json:"expires_in"`
+}

@@ -1,5 +1,7 @@
 package suite
 
+import "github.com/shengbox/wechat-qy/base"
+
 type preAuthCodeInfo struct {
 	Code      string `json:"pre_auth_code"`
 	ExpiresIn int64  `json:"expires_in"`
@@ -64,6 +66,7 @@ type PermanentCodeInfo struct {
 	PermanentCode string       `json:"permanent_code"`
 	AuthCorpInfo  *Corporation `json:"auth_corp_info"`
 	AuthInfo      *AuthInfo    `json:"auth_info"`
+	Ticket        *base.Ticket `json:"ticket"`
 }
 
 type operator struct {
