@@ -148,6 +148,12 @@ func (s *Suite) Parse(body []byte, signature, timestamp, nonce string) (interfac
 		data = &RecvCreateAuth{}
 	case "register_corp":
 		data = &RecRegisterCorp{}
+	case "change_external_tag":
+		data = &RecvChangeExternalTagEvent{}
+	case "change_external_contact":
+		data = &RecvChangeExternalContactEvent{}
+	case "change_external_chat":
+		data = &RecvChangeExternalChatEvent{}
 	default:
 		switch probeData.Event {
 		case "change_app_admin", "subscribe", "enter_agent", "unsubscribe":

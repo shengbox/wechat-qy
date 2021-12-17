@@ -146,6 +146,39 @@ type RecvChangeEvent struct {
 	Event        string
 }
 
+//======= 客户事件 =======
+
+type RecvChangeExternalEvent struct {
+	SuiteId    string //第三方应用ID
+	AuthCorpId string //授权企业的CorpID
+	InfoType   string
+	TimeStamp  int64 //时间戳
+	ChangeType string
+}
+
+type RecvChangeExternalTagEvent struct {
+	RecvChangeExternalEvent `xml:",inline"`
+	Id                      string
+}
+
+type RecvChangeExternalContactEvent struct {
+	RecvChangeExternalEvent `xml:",inline"`
+	UserID                  string //企业服务人员的UserID
+	ExternalUserID          string //外部联系人的userid，注意不是企业成员的帐号
+	State                   string //添加此用户的「联系我」方式配置的state参数，可用于识别添加此用户的渠道
+	WelcomeCode             string //欢迎语code，可用于发送欢迎语
+	FailReason              string
+}
+
+type RecvChangeExternalChatEvent struct {
+	RecvChangeExternalEvent `xml:",inline"`
+	ChatId                  string
+	UpdateDetail            string
+	JoinScene               int
+	QuitScene               int
+	MemChangeCnt            int
+}
+
 // Admin 获取应用的管理员列表
 type Admin struct {
 	Userid     string `json:"userid"`
