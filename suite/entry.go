@@ -156,6 +156,12 @@ type RecvChangeExternalEvent struct {
 	ChangeType string
 }
 
+type RecvChangeContactEvent struct {
+	RecvChangeExternalEvent `xml:",inline"`
+	UserID                  string
+	OpenUserID              string
+}
+
 type RecvChangeExternalTagEvent struct {
 	RecvChangeExternalEvent `xml:",inline"`
 	Id                      string

@@ -148,6 +148,8 @@ func (s *Suite) Parse(body []byte, signature, timestamp, nonce string) (interfac
 		data = &RecvCreateAuth{}
 	case "register_corp":
 		data = &RecRegisterCorp{}
+	case "change_contact":
+		data = &RecvChangeContactEvent{}
 	case "change_external_tag":
 		data = &RecvChangeExternalTagEvent{}
 	case "change_external_contact":
