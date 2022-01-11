@@ -5,10 +5,16 @@ import (
 	"errors"
 	"log"
 	"net/url"
+
+	"github.com/go-resty/resty/v2"
 )
 
 const (
-	copytemplateURI = "https://qyapi.weixin.qq.com/cgi-bin/oa/approval/copytemplate"
+	copytemplateURI      = "https://qyapi.weixin.qq.com/cgi-bin/oa/approval/copytemplate"
+	gettemplatedetailURI = "https://qyapi.weixin.qq.com/cgi-bin/oa/gettemplatedetail" // 获取审批模板详情
+	applyeventURI        = "https://qyapi.weixin.qq.com/cgi-bin/oa/applyevent"        // 提交审批申请
+	getapprovalinfoURI   = "https://qyapi.weixin.qq.com/cgi-bin/oa/getapprovalinfo"   // 批量获取审批单号
+	getapprovaldetailURI = "https://qyapi.weixin.qq.com/cgi-bin/oa/getapprovaldetail" // 获取审批申请详情
 )
 
 func (a *API) Copytemplate(openTemplateId string) (string, error) {
@@ -41,4 +47,18 @@ func (a *API) Copytemplate(openTemplateId string) (string, error) {
 		return "", errors.New(result.Errmsg)
 	}
 	return result.TemplateId, err
+}
+
+func (a *API) GetTemplateDetail(templateId string) (map[string]interface{}, error) {
+	token, err := a.Tokener.Token()
+	if err != nil {
+		return nil, err
+	}
+	var result map[string]interface{}
+	resp, err := resty.New().R().
+		SetQueryParam("access_token", token).
+		SetBody(map[string]string{"template_id": templateId}).
+		SetResult(&result).Post(gettemplatedetailURI)
+	log.Println(resp.String(), err)
+	return result, err
 }
