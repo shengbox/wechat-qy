@@ -119,13 +119,22 @@ func (a *API) GetTemplateDetail(templateId string) (*TemplateDetailObj, error) {
 }
 
 // 提交申请
-func (a *API) Applyevent(body ApplyObj) (*map[string]interface{}, error) {
+func (a *API) Applyevent(body ApplyObj) (string, error) {
 	token, err := a.Tokener.Token()
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-	var result map[string]interface{}
+	result := &struct {
+		BaseResp `json:",inline"`
+		SpNO     string `json:"sp_no"`
+	}{}
 	resp, err := resty.New().R().SetQueryParam("access_token", token).SetBody(body).SetResult(&result).Post(applyeventURI)
 	log.Println(resp.String(), err)
-	return &result, err
+	if err != nil {
+		return "", err
+	}
+	if result.Errcode > 0 {
+		return "", errors.New(result.Errmsg)
+	}
+	return result.SpNO, err
 }
