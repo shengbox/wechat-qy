@@ -138,3 +138,42 @@ func (a *API) Applyevent(body ApplyObj) (string, error) {
 	}
 	return result.SpNO, err
 }
+
+func (a *API) GetApprovalInfo(body ApprovalReq) ([]string, error) {
+	token, err := a.Tokener.Token()
+	if err != nil {
+		return nil, err
+	}
+	result := &struct {
+		BaseResp `json:",inline"`
+		SpNOList []string `json:"sp_no_list"`
+	}{}
+	_, _ = resty.New().R().SetResult(&result).SetQueryParam("access_token", token).SetBody(body).Post(getapprovalinfoURI)
+	return result.SpNOList, err
+}
+
+type ApprovalReq struct {
+	Starttime int64    `json:"starttime,omitempty"`
+	Endtime   int64    `json:"endtime,omitempty"`
+	Cursor    int64    `json:"cursor,omitempty"`
+	Size      int64    `json:"size,omitempty"`
+	Filters   []Filter `json:"filters,omitempty"`
+}
+
+type Filter struct {
+	Key   string `json:"key"`
+	Value string `json:"value"`
+}
+
+func (a *API) GetApprovalDetail(spNO string) (*map[string]interface{}, error) {
+	token, err := a.Tokener.Token()
+	if err != nil {
+		return nil, err
+	}
+	var result map[string]interface{}
+	_, _ = resty.New().R().SetResult(&result).
+		SetQueryParam("access_token", token).
+		SetBody(map[string]string{"sp_no": spNO}).
+		Post(getapprovaldetailURI)
+	return &result, err
+}
