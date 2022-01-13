@@ -160,6 +160,8 @@ func (s *Suite) Parse(body []byte, signature, timestamp, nonce string) (interfac
 		switch probeData.Event {
 		case "change_app_admin", "subscribe", "enter_agent", "unsubscribe":
 			data = &RecvChangeEvent{}
+		case "sys_approval_change":
+			data = &SysApprovalChangeEvent{}
 		default:
 			return nil, fmt.Errorf("unknown message type: %s origData: %s", probeData.InfoType, origData)
 		}

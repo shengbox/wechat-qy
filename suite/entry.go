@@ -185,6 +185,51 @@ type RecvChangeExternalChatEvent struct {
 	MemChangeCnt            int
 }
 
+type SysApprovalChangeEvent struct {
+	ToUserName   string //ww84332616507d83b8
+	FromUserName string //sys
+	CreateTime   int64
+	MsgType      string // event
+	Event        string // sys_approval_change
+	AgentID      int64  // 1000036
+	ApprovalInfo struct {
+		SpNo       string   // 202201130001
+		SpName     string   // 审批申请类型名称（审批模板名称）
+		SpStatus   int      // 申请单状态：1-审批中；2-已通过；3-已驳回；4-已撤销；6-通过后撤销；7-已删除；10-已支付
+		TemplateId string   // open_3WK7aosk2k7EpRwZ2q4925HkE3yVEK1y5TPv8dBv
+		ApplyTime  int64    // 1642057650
+		Applyer    struct { // 申请人信息
+			UserId string
+			Party  int // 申请人所在部门pid
+		}
+		SpRecord struct {
+			SpStatus     int      // 审批节点状态：1-审批中；2-已同意；3-已驳回；4-已转审
+			ApproverAttr int      // 节点审批方式：1-或签；2-会签
+			Details      struct { // 审批节点详情。当节点为标签或上级时，一个节点可能有多个分支
+				Approver struct { // s分支审批人
+					UserId string // 分支审批人userid
+				}
+				Speech   string      // 审批意见字段
+				SpStatus int         // 分支审批人审批状态：1-审批中；2-已同意；3-已驳回；4-已转审
+				SpTime   int64       // 节点分支审批人审批操作时间，0为尚未操作
+				MediaId  interface{} // 节点分支审批人审批意见附件
+			}
+		}
+		Notifyer []struct { // 抄送信息，可能有多个抄送节点
+			UserId string
+		}
+		Comments struct {
+			CommentUserInfo struct {
+				UserId string
+			}
+			CommentTime    int64       // 备注提交时间
+			CommentContent string      // 备注文本内容
+			CommentId      interface{} // 备注id
+		} // 审批申请备注信息，可能有多个备注节点
+		StatuChangeEvent int // 审批申请状态变化类型：1-提单；2-同意；3-驳回；4-转审；5-催办；6-撤销；8-通过后撤销；10-添加备注
+	}
+}
+
 // Admin 获取应用的管理员列表
 type Admin struct {
 	Userid     string `json:"userid"`
