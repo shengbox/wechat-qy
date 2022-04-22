@@ -36,6 +36,7 @@ const (
 	uploadURI             = "https://qyapi.weixin.qq.com/cgi-bin/service/media/upload"
 	idTranslateURI        = "https://qyapi.weixin.qq.com/cgi-bin/service/contact/id_translate"
 	getJobResultURI       = "https://qyapi.weixin.qq.com/cgi-bin/service/batch/getresult"
+	setSessionInfoURI     = "https://qyapi.weixin.qq.com/cgi-bin/service/set_session_info"
 )
 
 // Suite 结构体包含了应用套件的相关操作
@@ -275,31 +276,29 @@ func (s *Suite) GetAuthURI(appIDs []int, redirectURI, state string) (string, err
 }
 
 func (s *Suite) GetPreAuthCode() (*preAuthCodeInfo, error) {
-	token, err := s.tokener.Token()
-	if err != nil {
-		return nil, err
-	}
-
-	qs := url.Values{}
-	qs.Add("suite_access_token", token)
-	uri := preAuthCodeURI + "?" + qs.Encode()
-
-	body, err := s.client.GetJSON(uri)
-	if err != nil {
-		return nil, err
-	}
-
 	result := &preAuthCodeInfo{}
-	err = json.Unmarshal(body, result)
-
+	err := s.GetJSON(preAuthCodeURI, nil, result)
 	return result, err
 }
 
+// SetSessionInfo 设置授权配置
+func (s *Suite) SetSessionInfo(PreAuthCode string) error {
+	body := map[string]interface{}{
+		"pre_auth_code": PreAuthCode,
+		"session_info":  map[string]interface{}{"auth_type": 1},
+	}
+	var result BaseResp
+	return s.PostJSON(setSessionInfoURI, nil, body, result)
+}
+
 // GetInstallURI 方法用于获取应用套件的授权地址
-func (s *Suite) GetInstallURI(redirectURI, state string) (string, error) {
+func (s *Suite) GetInstallURI(redirectURI, state string, isTest bool) (string, error) {
 	preAuthCodeInfo, err := s.GetPreAuthCode()
 	if err != nil {
 		return "", err
+	}
+	if isTest {
+		s.SetSessionInfo(preAuthCodeInfo.Code)
 	}
 
 	qs := url.Values{}
@@ -647,4 +646,36 @@ func (s *Suite) GetJobResultURI(jobID string) (*JobResult, error) {
 		return nil, errors.New(result.Errmsg)
 	}
 	return &result, err
+}
+
+func (s *Suite) PostJSON(uri string, param url.Values, body, result interface{}) error {
+	token, err := s.tokener.Token()
+	if err != nil {
+		return err
+	}
+	if param == nil {
+		param = url.Values{}
+	}
+	param.Add("suite_access_token", token)
+	uri = uri + "?" + param.Encode()
+
+	buf, _ := json.Marshal(body)
+	_body, err := s.client.PostJSON(uri, buf)
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(_body, &result)
+}
+
+func (s *Suite) GetJSON(uri string, qs url.Values, result interface{}) error {
+	token, err := s.tokener.Token()
+	if err != nil {
+		return err
+	}
+	if qs == nil {
+		qs = url.Values{}
+	}
+	qs.Add("suite_access_token", token)
+	body, err := s.client.GetJSON(uri + "?" + qs.Encode())
+	return json.Unmarshal(body, result)
 }

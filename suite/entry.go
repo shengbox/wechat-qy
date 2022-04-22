@@ -2,6 +2,10 @@ package suite
 
 import "github.com/shengbox/wechat-qy/base"
 
+type BaseResp struct {
+	Errcode int64  `json:"errcode"`
+	Errmsg  string `json:"errmsg"`
+}
 type preAuthCodeInfo struct {
 	Code      string `json:"pre_auth_code"`
 	ExpiresIn int64  `json:"expires_in"`
