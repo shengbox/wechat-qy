@@ -288,7 +288,7 @@ func (s *Suite) SetSessionInfo(PreAuthCode string) error {
 		"session_info":  map[string]interface{}{"auth_type": 1},
 	}
 	var result BaseResp
-	return s.PostJSON(setSessionInfoURI, nil, body, result)
+	return s.PostJSON(setSessionInfoURI, nil, body, &result)
 }
 
 // GetInstallURI 方法用于获取应用套件的授权地址
@@ -664,7 +664,7 @@ func (s *Suite) PostJSON(uri string, param url.Values, body, result interface{})
 	if err != nil {
 		return err
 	}
-	return json.Unmarshal(_body, &result)
+	return json.Unmarshal(_body, result)
 }
 
 func (s *Suite) GetJSON(uri string, qs url.Values, result interface{}) error {
