@@ -198,7 +198,7 @@ func (a *API) GroupChatGetUGet(req *GroupChatGetReq) (*GroupChatGetResp, error) 
 }
 
 // GetMomentList 获取客户朋友圈发表记录
-func (a *API) GetMomentList(req *MomentListReq) ([]MomentList, error) {
+func (a *API) GetMomentList(req *MomentListReq) ([]Moment, error) {
 	token, err := a.Tokener.Token()
 	if err != nil {
 		return nil, err
