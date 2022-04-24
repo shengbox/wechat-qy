@@ -16,6 +16,7 @@ const (
 	externalGroupChatGetURI  = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/groupchat/get"
 	getCorpTagListURI        = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get_corp_tag_list"
 	markTagURI               = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/mark_tag"
+	getMomentListURI         = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get_moment_list"
 )
 
 // GetExternalContact 获取客户详情
@@ -194,6 +195,28 @@ func (a *API) GroupChatGetUGet(req *GroupChatGetReq) (*GroupChatGetResp, error) 
 	result := &GroupChatGetResp{}
 	err = json.Unmarshal(body, result)
 	return result, err
+}
+
+// GetMomentList 获取客户朋友圈发表记录
+func (a *API) GetMomentList(req *MomentListReq) ([]MomentList, error) {
+	token, err := a.Tokener.Token()
+	if err != nil {
+		return nil, err
+	}
+	qs := make(url.Values)
+	qs.Add("access_token", token)
+	apiUrl := getMomentListURI + "?" + qs.Encode()
+	data, err := json.Marshal(req)
+	if err != nil {
+		return nil, err
+	}
+	body, err := a.Client.PostJSON(apiUrl, data)
+	if err != nil {
+		return nil, err
+	}
+	result := &MomentListResp{}
+	err = json.Unmarshal(body, result)
+	return result.MomentList, err
 }
 
 // GetCorpTagList 获取企业标签库
