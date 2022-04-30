@@ -18,6 +18,7 @@ const (
 	getCorpTagListURI        = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get_corp_tag_list"
 	markTagURI               = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/mark_tag"
 	getMomentListURI         = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get_moment_list"
+	getGroupmsgListURI       = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get_groupmsg_list_v2"
 )
 
 // GetExternalContact 获取客户详情
@@ -269,6 +270,28 @@ func (a *API) MarkTag(req *MakeTagReq) (*BaseResp, error) {
 		return nil, err
 	}
 	result := &BaseResp{}
+	err = json.Unmarshal(body, result)
+	return result, err
+}
+
+// GetGroupmsgList 获取群发记录列表
+func (a *API) GetGroupmsgList(req *GroupmsgListReq) (*GroupMsgListResp, error) {
+	token, err := a.Tokener.Token()
+	if err != nil {
+		return nil, err
+	}
+	qs := make(url.Values)
+	qs.Add("access_token", token)
+	apiUrl := getGroupmsgListURI + "?" + qs.Encode()
+	data, err := json.Marshal(req)
+	if err != nil {
+		return nil, err
+	}
+	body, err := a.Client.PostJSON(apiUrl, data)
+	if err != nil {
+		return nil, err
+	}
+	result := &GroupMsgListResp{}
 	err = json.Unmarshal(body, result)
 	return result, err
 }
