@@ -194,10 +194,10 @@ func (a *API) GroupChatGetUGet(req *GroupChatGetReq) (*GroupChat, error) {
 	if err != nil {
 		return nil, err
 	}
-	var result struct {
+	result := &struct {
 		BaseResp  `json:",inline"`
 		GroupChat GroupChat `json:"group_chat"`
-	}
+	}{}
 	err = json.Unmarshal(body, result)
 	if err != nil {
 		return nil, err
