@@ -210,28 +210,30 @@ type Moment struct {
 
 type GroupChatGetResp struct {
 	BaseResp  `json:",inline"`
-	GroupChat struct {
-		ChatId     string `json:"chat_id"`
-		Name       string `json:"name"`
-		Owner      string `json:"owner"`
-		CreateTime int    `json:"create_time"`
-		Notice     string `json:"notice"`
-		MemberList []struct {
-			Userid    string `json:"userid"`
-			Type      int    `json:"type"`
-			JoinTime  int    `json:"join_time"`
-			JoinScene int    `json:"join_scene"`
-			Invitor   struct {
-				Userid string `json:"userid"`
-			} `json:"invitor,omitempty"`
-			GroupNickname string `json:"group_nickname"`
-			Name          string `json:"name"`
-			Unionid       string `json:"unionid,omitempty"`
-		} `json:"member_list"`
-		AdminList []struct {
+	GroupChat GroupChat `json:"group_chat"`
+}
+
+type GroupChat struct {
+	ChatId     string `json:"chat_id"`
+	Name       string `json:"name"`
+	Owner      string `json:"owner"`
+	CreateTime int    `json:"create_time"`
+	Notice     string `json:"notice"`
+	MemberList []struct {
+		Userid    string `json:"userid"`
+		Type      int    `json:"type"`
+		JoinTime  int    `json:"join_time"`
+		JoinScene int    `json:"join_scene"`
+		Invitor   struct {
 			Userid string `json:"userid"`
-		} `json:"admin_list"`
-	} `json:"group_chat"`
+		} `json:"invitor,omitempty"`
+		GroupNickname string `json:"group_nickname"`
+		Name          string `json:"name"`
+		Unionid       string `json:"unionid,omitempty"`
+	} `json:"member_list"`
+	AdminList []struct {
+		Userid string `json:"userid"`
+	} `json:"admin_list"`
 }
 
 type CorpTagListResp struct {
