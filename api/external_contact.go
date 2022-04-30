@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
 	"net/url"
 )
 
@@ -176,7 +177,7 @@ func (a *API) ExternalGroupChatList(req *GroupChatReq) (*GroupChatResp, error) {
 }
 
 // GroupChatGetUGet 获取客户群详情
-func (a *API) GroupChatGetUGet(req *GroupChatGetReq) (*GroupChatGetResp, error) {
+func (a *API) GroupChatGetUGet(req *GroupChatGetReq) (*GroupChat, error) {
 	token, err := a.Tokener.Token()
 	if err != nil {
 		return nil, err
@@ -192,9 +193,18 @@ func (a *API) GroupChatGetUGet(req *GroupChatGetReq) (*GroupChatGetResp, error) 
 	if err != nil {
 		return nil, err
 	}
-	result := &GroupChatGetResp{}
+	var result struct {
+		BaseResp  `json:",inline"`
+		GroupChat GroupChat `json:"group_chat"`
+	}
 	err = json.Unmarshal(body, result)
-	return result, err
+	if err != nil {
+		return nil, err
+	}
+	if result.Errcode != 0 {
+		return nil, errors.New(result.Errmsg)
+	}
+	return &result.GroupChat, err
 }
 
 // GetMomentList 获取客户朋友圈发表记录

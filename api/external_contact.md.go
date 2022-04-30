@@ -208,11 +208,6 @@ type Moment struct {
 	} `json:"image"`
 }
 
-type GroupChatGetResp struct {
-	BaseResp  `json:",inline"`
-	GroupChat GroupChat `json:"group_chat"`
-}
-
 type GroupChat struct {
 	ChatId     string `json:"chat_id"`
 	Name       string `json:"name"`
