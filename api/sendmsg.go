@@ -7,6 +7,7 @@ import (
 
 const (
 	sendMessageURI = "https://qyapi.weixin.qq.com/cgi-bin/message/send"
+	dd             = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/send_welcome_msg"
 )
 
 // MessageType 消息类型定义

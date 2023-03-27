@@ -43,7 +43,7 @@ type ExternalContactListResp struct {
 	ExternalUserid []string `json:"external_userid"`
 }
 
-//AddContactWayReq 联系我配置
+// AddContactWayReq 联系我配置
 type AddContactWayReq struct {
 	Type          int         `json:"type"`            // 联系方式类型,1-单人, 2-多人
 	Scene         int         `json:"scene"`           // 场景，1-在小程序中联系，2-通过二维码联系
@@ -140,7 +140,7 @@ type GroupChatStatisticResp struct {
 	} `json:"items"`
 }
 
-//ExternalContactRemark 修改客户备注信息
+// ExternalContactRemark 修改客户备注信息
 type ExternalContactRemark struct {
 	Userid           string   `json:"userid"`
 	ExternalUserid   string   `json:"external_userid"`
@@ -151,7 +151,7 @@ type ExternalContactRemark struct {
 	RemarkPicMediaid string   `json:"remark_pic_mediaid,omitempty"` // 备注图片的mediaid，
 }
 
-//GroupChatReq 获取客户群列表
+// GroupChatReq 获取客户群列表
 type GroupChatReq struct {
 	StatusFilter int `json:"status_filter,omitempty"` // 客户群跟进状态过滤。
 	OwnerFilter  struct {
@@ -161,7 +161,7 @@ type GroupChatReq struct {
 	Limit  int    `json:"limit"`
 }
 
-//GroupChatResp 获取客户群列表
+// GroupChatResp 获取客户群列表
 type GroupChatResp struct {
 	BaseResp      `json:",inline"`
 	GroupChatList []struct {
@@ -318,4 +318,14 @@ type Miniprogram struct {
 	PicMediaID string `json:"pic_media_id"`
 	Appid      string `json:"appid"`
 	Page       string `json:"page"`
+}
+
+type WelcomeMsg struct {
+	WelcomeCode string       `json:"welcome_code"`
+	Text        Text         `json:"text"`
+	Attachments []Attachment `json:"attachments"`
+}
+
+type Text struct {
+	Content string `json:"content"`
 }

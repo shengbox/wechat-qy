@@ -19,6 +19,7 @@ const (
 	markTagURI               = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/mark_tag"
 	getMomentListURI         = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get_moment_list"
 	getGroupmsgListURI       = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get_groupmsg_list_v2"
+	sendWelcomeMsgURI        = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/send_welcome_msg"
 )
 
 // GetExternalContact 获取客户详情
@@ -69,7 +70,7 @@ func (a *API) ListExternalContact(userid string) ([]string, error) {
 	return result.ExternalUserid, err
 }
 
-//AddContactWay 配置客户联系「联系我」方式
+// AddContactWay 配置客户联系「联系我」方式
 func (a *API) AddContactWay(way *AddContactWayReq) (*AddContactWayResp, error) {
 	token, err := a.Tokener.Token()
 	if err != nil {
