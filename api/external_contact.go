@@ -296,3 +296,24 @@ func (a *API) GetGroupmsgList(req *GroupmsgListReq) (*GroupMsgListResp, error) {
 	err = json.Unmarshal(body, result)
 	return result, err
 }
+
+func (a *API) SendWelcomeMsg(req *WelcomeMsg) (*BaseResp, error) {
+	token, err := a.Tokener.Token()
+	if err != nil {
+		return nil, err
+	}
+	qs := make(url.Values)
+	qs.Add("access_token", token)
+	apiUrl := sendWelcomeMsgURI + "?" + qs.Encode()
+	data, err := json.Marshal(req)
+	if err != nil {
+		return nil, err
+	}
+	body, err := a.Client.PostJSON(apiUrl, data)
+	if err != nil {
+		return nil, err
+	}
+	result := &BaseResp{}
+	err = json.Unmarshal(body, result)
+	return result, err
+}
