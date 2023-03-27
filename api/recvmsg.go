@@ -182,6 +182,7 @@ type RecChangeExternalContactEvent struct {
 	ChangeType     string
 	UserID         string
 	ExternalUserID string
+	WelcomeCode    string
 }
 
 // RespBaseData 描述被动响应消息的公共结构
