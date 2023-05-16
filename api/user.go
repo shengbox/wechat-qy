@@ -32,6 +32,7 @@ type UserAttributes struct {
 type User struct {
 	UserID        string         `json:"userid"`
 	Name          string         `json:"name,omitempty"`
+	Alias         string         `json:"alias,omitempty"`
 	DepartmentIds []int64        `json:"department,omitempty"`
 	Position      string         `json:"position,omitempty"`
 	Mobile        string         `json:"mobile,omitempty"`
