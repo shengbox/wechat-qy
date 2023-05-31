@@ -25,6 +25,7 @@ const (
 	BatchJobResultEvent  = "batch_job_result"
 
 	ChangeExternalContactEvent = "change_external_contact"
+	MsgAuditNotifyEvent        = "msgaudit_notify"
 )
 
 // RecvBaseData 描述接收到的各类消息或事件的公共结构
@@ -94,6 +95,12 @@ type RecvLocationEvent struct {
 
 // RecvMenuEvent 描述菜单事件的结构
 type RecvMenuEvent struct {
+	RecvBaseData
+	Event    string
+	EventKey string
+}
+
+type MsgAuditNotify struct {
 	RecvBaseData
 	Event    string
 	EventKey string
@@ -316,9 +323,11 @@ func (h *recvMsgHandler) Parse(body []byte, signature, timestamp, nonce string) 
 			data = &RecvBatchJobResultEvent{}
 		case ChangeExternalContactEvent:
 			data = &RecChangeExternalContactEvent{}
+		case MsgAuditNotifyEvent:
+			data = &MsgAuditNotify{}
 		default:
-			log.Println("origData=", origData)
-			return nil, fmt.Errorf("unknown event type: %s", probeData.Event)
+			log.Println("origData=", string(origData))
+			return origData, fmt.Errorf("unknown event type: %s", probeData.Event)
 		}
 	default:
 		return nil, fmt.Errorf("unknown message type: %s", probeData.MsgType)
