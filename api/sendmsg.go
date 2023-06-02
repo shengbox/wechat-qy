@@ -1,6 +1,7 @@
 package api
 
 import (
+	"bytes"
 	"encoding/json"
 	"net/url"
 )
@@ -166,11 +167,16 @@ func (a *API) SendMessage(message interface{}) error {
 	qs.Add("access_token", token)
 
 	url := sendMessageURI + "?" + qs.Encode()
-	data, err := json.Marshal(message)
+
+	bf := bytes.NewBuffer([]byte{})
+	jsonEncoder := json.NewEncoder(bf)
+	jsonEncoder.SetEscapeHTML(false)
+	err = jsonEncoder.Encode(message)
+	// data, err := json.Marshal(message)
 	if err != nil {
 		return err
 	}
 
-	_, err = a.Client.PostJSON(url, data)
+	_, err = a.Client.PostJSON(url, bf.Bytes())
 	return err
 }
