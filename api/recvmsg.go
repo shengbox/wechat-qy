@@ -26,6 +26,7 @@ const (
 
 	ChangeExternalContactEvent = "change_external_contact"
 	MsgAuditNotifyEvent        = "msgaudit_notify"
+	ChangeContactEvent         = "change_contact"
 )
 
 // RecvBaseData 描述接收到的各类消息或事件的公共结构
@@ -100,10 +101,18 @@ type RecvMenuEvent struct {
 	EventKey string
 }
 
-type MsgAuditNotify struct {
+type RecMsgAuditNotifyEvent struct {
 	RecvBaseData
 	Event    string
 	EventKey string
+}
+
+type RecChangeContactEvent struct {
+	RecvBaseData
+	Event      string
+	ChangeType string
+	UserID     string
+	Department int64
 }
 
 // ScanCodeInfo 描述扫码事件的相关内容结构
@@ -324,7 +333,9 @@ func (h *recvMsgHandler) Parse(body []byte, signature, timestamp, nonce string) 
 		case ChangeExternalContactEvent:
 			data = &RecChangeExternalContactEvent{}
 		case MsgAuditNotifyEvent:
-			data = &MsgAuditNotify{}
+			data = &RecMsgAuditNotifyEvent{}
+		case ChangeContactEvent:
+			data = &RecChangeContactEvent{}
 		default:
 			log.Println("origData=", string(origData))
 			return origData, fmt.Errorf("unknown event type: %s", probeData.Event)
