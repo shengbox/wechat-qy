@@ -27,6 +27,7 @@ const (
 	ChangeExternalContactEvent = "change_external_contact"
 	MsgAuditNotifyEvent        = "msgaudit_notify"
 	ChangeContactEvent         = "change_contact"
+	ChangeExternalChatEvent    = "change_external_chat"
 )
 
 // RecvBaseData 描述接收到的各类消息或事件的公共结构
@@ -266,6 +267,17 @@ type RespNewsMessage struct {
 	Articles     []RespArticleItem
 }
 
+type RecvChangeExternalChat struct {
+	RespBaseData
+	Event        string
+	ChangeType   string
+	ChatId       string
+	UpdateDetail string
+	JoinScene    int
+	QuitScene    int
+	MemChangeCnt int
+}
+
 type recvMsgHandler struct {
 	api *API
 }
@@ -336,6 +348,8 @@ func (h *recvMsgHandler) Parse(body []byte, signature, timestamp, nonce string) 
 			data = &RecMsgAuditNotifyEvent{}
 		case ChangeContactEvent:
 			data = &RecChangeContactEvent{}
+		case ChangeExternalChatEvent:
+			data = &RecvChangeExternalChat{}
 		default:
 			log.Println("origData=", string(origData))
 			return origData, fmt.Errorf("unknown event type: %s", probeData.Event)
