@@ -24,13 +24,14 @@ type FollowUser struct {
 	Remark         string   `json:"remark"`
 	RemarkCorpName string   `json:"remark_corp_name"`
 	RemarkMobiles  []string `json:"remark_mobiles"`
-	Tags           []struct {
-		GroupName string `json:"group_name"`
-		TagId     string `json:"tag_id"`
-		TagName   string `json:"tag_name"`
-		Type      int    `json:"type"`
-	} `json:"tags"`
-	Userid string `json:"userid"`
+	Tags           []Tag    `json:"tags"`
+	Userid         string   `json:"userid"`
+}
+type Tag struct {
+	GroupName string `json:"group_name"`
+	TagId     string `json:"tag_id"`
+	TagName   string `json:"tag_name"`
+	Type      int    `json:"type"`
 }
 
 type ExternalContactResp struct {
