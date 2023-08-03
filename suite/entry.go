@@ -27,7 +27,7 @@ type Corporation struct {
 	UserMax         int    `json:"corp_user_max"`
 	AgentMax        int    `json:"corp_agent_max"`
 	QRCode          string `json:"corp_wxqrcode"`
-	SubjectType     string `json:"subject_type"`
+	SubjectType     any    `json:"subject_type"`
 	VerifiedEndTime string `json:"verified_end_time"`
 }
 
