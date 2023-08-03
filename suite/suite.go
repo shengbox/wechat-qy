@@ -37,6 +37,8 @@ const (
 	idTranslateURI        = "https://qyapi.weixin.qq.com/cgi-bin/service/contact/id_translate"
 	getJobResultURI       = "https://qyapi.weixin.qq.com/cgi-bin/service/batch/getresult"
 	setSessionInfoURI     = "https://qyapi.weixin.qq.com/cgi-bin/service/set_session_info"
+
+	activeAccountURI = "https://qyapi.weixin.qq.com/cgi-bin/license/active_account"
 )
 
 // Suite 结构体包含了应用套件的相关操作
@@ -453,7 +455,34 @@ func (s *Suite) fetchCorpToken(corpID, permanentCode string) (*corpTokenInfo, er
 	return result, err
 }
 
-//GetAdminList 获取应用的管理员列表
+func (s *Suite) ActiveAccount(corpID, activeCode, userid string) (*BaseResp, error) {
+	token, err := s.tokener.Token()
+	if err != nil {
+		return nil, err
+	}
+
+	qs := url.Values{}
+	qs.Add("provider_access_token", token)
+	uri := activeAccountURI + "?" + qs.Encode()
+
+	buf, _ := json.Marshal(map[string]string{
+		"active_code": activeCode,
+		"corpid":      corpID,
+		"userid":      userid,
+	})
+
+	body, err := s.client.PostJSON(uri, buf)
+	if err != nil {
+		return nil, err
+	}
+
+	result := &BaseResp{}
+	err = json.Unmarshal(body, result)
+
+	return result, err
+}
+
+// GetAdminList 获取应用的管理员列表
 func (s *Suite) GetAdminList(corpID, agentId string) ([]*Admin, error) {
 	token, err := s.tokener.Token()
 	if err != nil {
@@ -483,7 +512,7 @@ func (s *Suite) GetAdminList(corpID, agentId string) ([]*Admin, error) {
 	return result.Admins, err
 }
 
-//GetRegisterCode 获取注册码
+// GetRegisterCode 获取注册码
 func (s *Suite) GetRegisterCode(templateId string) (*RegisterCodeInfo, error) {
 	token, err := s.tokener.Token()
 	if err != nil {
@@ -541,7 +570,7 @@ func (s *Suite) ContactSyncSuccess(accessToken string) error {
 	return err
 }
 
-//Getuserinfo3rd 获取访问用户身份
+// Getuserinfo3rd 获取访问用户身份
 func (s *Suite) Getuserinfo3rd(code string) (*UserInfo3RD, error) {
 	token, err := s.tokener.Token()
 	if err != nil {
@@ -559,7 +588,7 @@ func (s *Suite) Getuserinfo3rd(code string) (*UserInfo3RD, error) {
 	return &result, err
 }
 
-//Getuserdetail3rd 获取访问用户敏感信息
+// Getuserdetail3rd 获取访问用户敏感信息
 func (s *Suite) Getuserdetail3rd(userTicket string) (*UserInfoDetail3RD, error) {
 	token, err := s.tokener.Token()
 	if err != nil {
@@ -576,7 +605,7 @@ func (s *Suite) Getuserdetail3rd(userTicket string) (*UserInfoDetail3RD, error) 
 	return &result, err
 }
 
-//GetLoginInfo 获取登录用户信息
+// GetLoginInfo 获取登录用户信息
 func (s *Suite) GetLoginInfo(authCode string) (*LoginInfo, error) {
 	token, err := s.tokener.Token()
 	if err != nil {
