@@ -7,7 +7,8 @@ import (
 )
 
 const (
-	sendMessageURI = "https://qyapi.weixin.qq.com/cgi-bin/message/send"
+	sendMessageURI       = "https://qyapi.weixin.qq.com/cgi-bin/message/send"
+	getPermitUserListURI = "https://qyapi.weixin.qq.com/cgi-bin/msgaudit/get_permit_user_list"
 )
 
 // MessageType 消息类型定义
@@ -179,4 +180,29 @@ func (a *API) SendMessage(message interface{}) error {
 
 	_, err = a.Client.PostJSON(url, bf.Bytes())
 	return err
+}
+
+// 获取会话内容存档开启成员列表
+func (a *API) GetPermitUserList() ([]string, error) {
+	token, err := a.Tokener.Token()
+	if err != nil {
+		return nil, err
+	}
+	qs := make(url.Values)
+	qs.Add("access_token", token)
+	url := getPermitUserListURI + "?" + qs.Encode()
+	data, _ := json.Marshal(map[string]any{"type": 1})
+	body, err := a.Client.PostJSON(url, data)
+	if err != nil {
+		return nil, err
+	}
+	var result struct {
+		Errcode int      `json:"errcode"`
+		Errmsg  string   `json:"errmsg"`
+		Ids     []string `json:"ids"`
+	}
+	if err := json.Unmarshal(body, &result); err != nil {
+		return nil, err
+	}
+	return result.Ids, nil
 }
