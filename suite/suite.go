@@ -31,6 +31,7 @@ const (
 
 	contactSyncSuccessURI = "https://qyapi.weixin.qq.com/cgi-bin/sync/contact_sync_success"
 	getuserinfo3rdURI     = "https://qyapi.weixin.qq.com/cgi-bin/service/getuserinfo3rd"
+	getuserinfo3rdAuthURI = "https://qyapi.weixin.qq.com/cgi-bin/service/auth/getuserinfo3rd"
 	getuserdetail3rdURI   = "https://qyapi.weixin.qq.com/cgi-bin/service/getuserdetail3rd"
 	getLoginInfoURI       = "https://qyapi.weixin.qq.com/cgi-bin/service/get_login_info"
 	uploadURI             = "https://qyapi.weixin.qq.com/cgi-bin/service/media/upload"
@@ -581,6 +582,24 @@ func (s *Suite) Getuserinfo3rd(code string) (*UserInfo3RD, error) {
 		"suite_access_token": token,
 		"code":               code,
 	}).Get(getuserinfo3rdURI)
+
+	if result.Errcode > 0 {
+		return nil, errors.New(result.Errmsg)
+	}
+	return &result, err
+}
+
+func (s *Suite) Getuserinfo3rdAuth(code string) (*UserInfo3RDAuth, error) {
+	token, err := s.tokener.Token()
+	if err != nil {
+		return nil, err
+	}
+	var result UserInfo3RDAuth
+	resp, err := resty.New().R().SetResult(&result).SetQueryParams(map[string]string{
+		"suite_access_token": token,
+		"code":               code,
+	}).Get(getuserinfo3rdAuthURI)
+	fmt.Println(getuserinfo3rdAuthURI, resp.String())
 
 	if result.Errcode > 0 {
 		return nil, errors.New(result.Errmsg)
