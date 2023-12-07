@@ -39,7 +39,11 @@ const (
 	getJobResultURI       = "https://qyapi.weixin.qq.com/cgi-bin/service/batch/getresult"
 	setSessionInfoURI     = "https://qyapi.weixin.qq.com/cgi-bin/service/set_session_info"
 
-	activeAccountURI = "https://qyapi.weixin.qq.com/cgi-bin/license/active_account"
+	activeAccountURI       = "https://qyapi.weixin.qq.com/cgi-bin/license/active_account"
+	getActiveInfoByUserURI = "https://qyapi.weixin.qq.com/cgi-bin/license/get_active_info_by_user"
+	listActivedAccountURI  = "https://qyapi.weixin.qq.com/cgi-bin/license/list_actived_account"
+	listOrderURI           = "https://qyapi.weixin.qq.com/cgi-bin/license/list_order"
+	listOrderAccountURI    = "https://qyapi.weixin.qq.com/cgi-bin/license/list_order_account"
 )
 
 // Suite 结构体包含了应用套件的相关操作
@@ -725,5 +729,94 @@ func (s *Suite) GetJSON(uri string, qs url.Values, result interface{}) error {
 	}
 	qs.Add("suite_access_token", token)
 	body, err := s.client.GetJSON(uri + "?" + qs.Encode())
+	if err != nil {
+		return err
+	}
 	return json.Unmarshal(body, result)
+}
+
+// 获取成员的激活详情
+func (s *Suite) GetActiveInfoByUser(corpID, userID string) (*ActiveInfo, error) {
+	token, err := s.tokener.Token()
+	if err != nil {
+		return nil, err
+	}
+	qs := url.Values{}
+	qs.Add("provider_access_token", token)
+	uri := getActiveInfoByUserURI + "?" + qs.Encode()
+	buf, _ := json.Marshal(map[string]string{
+		"corpid": corpID,
+		"userid": userID,
+	})
+	body, err := s.client.PostJSON(uri, buf)
+	if err != nil {
+		return nil, err
+	}
+	result := ActiveInfo{}
+	err = json.Unmarshal(body, &result)
+	return &result, err
+}
+
+// 获取企业的账号列表
+func (s *Suite) ListActivedAccount(corpID string) (*ActivedList, error) {
+	token, err := s.tokener.Token()
+	if err != nil {
+		return nil, err
+	}
+	qs := url.Values{}
+	qs.Add("provider_access_token", token)
+	uri := listActivedAccountURI + "?" + qs.Encode()
+	buf, _ := json.Marshal(map[string]any{
+		"corpid": corpID,
+		"limit":  1000,
+	})
+	body, err := s.client.PostJSON(uri, buf)
+	if err != nil {
+		return nil, err
+	}
+	var result ActivedList
+	err = json.Unmarshal(body, &result)
+	return &result, err
+}
+
+// 获取订单列表
+func (s *Suite) ListOrder(orderID string) (*OrderListRes, error) {
+	token, err := s.tokener.Token()
+	if err != nil {
+		return nil, err
+	}
+	qs := url.Values{}
+	qs.Add("provider_access_token", token)
+	uri := listOrderURI + "?" + qs.Encode()
+	buf, _ := json.Marshal(map[string]any{
+		"corpid": orderID,
+	})
+	body, err := s.client.PostJSON(uri, buf)
+	if err != nil {
+		return nil, err
+	}
+	var result OrderListRes
+	err = json.Unmarshal(body, &result)
+	return &result, err
+}
+
+// 获取订单中的账号列表
+func (s *Suite) ListOrderAccount(orderID string) (*OrderAccountRes, error) {
+	token, err := s.tokener.Token()
+	if err != nil {
+		return nil, err
+	}
+	qs := url.Values{}
+	qs.Add("provider_access_token", token)
+	uri := listOrderAccountURI + "?" + qs.Encode()
+	buf, _ := json.Marshal(map[string]any{
+		"order_id": orderID,
+	})
+	body, err := s.client.PostJSON(uri, buf)
+	if err != nil {
+		return nil, err
+	}
+	var result OrderAccountRes
+	err = json.Unmarshal(body, &result)
+	return &result, err
 }
