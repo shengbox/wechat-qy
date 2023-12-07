@@ -330,3 +330,29 @@ type WelcomeMsg struct {
 type Text struct {
 	Content string `json:"content"`
 }
+
+type ContactWayRes struct {
+	BaseResp   `json:",inline"`
+	ContactWay []struct {
+		ConfigID string `json:"config_id"`
+	} `json:"contact_way"`
+	NextCursor string `json:"next_cursor"`
+}
+
+type ContactWayDetailRes struct {
+	BaseResp   `json:",inline"`
+	ContactWay ContactWay `json:"contact_way"`
+}
+
+type ContactWay struct {
+	ConfigID    string   `json:"config_id"`
+	Type        int64    `json:"type"`
+	Scene       int64    `json:"scene"`
+	QrCode      string   `json:"qr_code"`
+	SkipVerify  bool     `json:"skip_verify"`
+	Remark      string   `json:"remark"`
+	State       string   `json:"state"`
+	User        []string `json:"user"`
+	Party       []any    `json:"party"`
+	Conclusions any      `json:"conclusions"`
+}

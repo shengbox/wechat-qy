@@ -20,6 +20,9 @@ const (
 	getMomentListURI         = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get_moment_list"
 	getGroupmsgListURI       = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get_groupmsg_list_v2"
 	sendWelcomeMsgURI        = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/send_welcome_msg"
+
+	listContactWayURI = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/list_contact_way"
+	getContactWayURI  = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get_contact_way"
 )
 
 // GetExternalContact 获取客户详情
@@ -316,4 +319,51 @@ func (a *API) SendWelcomeMsg(req *WelcomeMsg) (*BaseResp, error) {
 	result := &BaseResp{}
 	err = json.Unmarshal(body, result)
 	return result, err
+}
+
+// 获取企业已配置的「联系我」列表
+func (a *API) ListContactWay(limit int) (*ContactWayRes, error) {
+	token, err := a.Tokener.Token()
+	if err != nil {
+		return nil, err
+	}
+	qs := make(url.Values)
+	qs.Add("access_token", token)
+	apiUrl := listContactWayURI + "?" + qs.Encode()
+	data, err := json.Marshal(map[string]any{"limit": limit})
+	if err != nil {
+		return nil, err
+	}
+	body, err := a.Client.PostJSON(apiUrl, data)
+	if err != nil {
+		return nil, err
+	}
+	result := &ContactWayRes{}
+	err = json.Unmarshal(body, result)
+	return result, err
+}
+
+// 获取企业已配置的「联系我」方式
+func (a *API) GetContactWay(configID string) (*ContactWay, error) {
+	token, err := a.Tokener.Token()
+	if err != nil {
+		return nil, err
+	}
+	qs := make(url.Values)
+	qs.Add("access_token", token)
+	apiUrl := getContactWayURI + "?" + qs.Encode()
+	data, err := json.Marshal(map[string]any{
+		"config_id": configID,
+	})
+	if err != nil {
+		return nil, err
+	}
+	body, err := a.Client.PostJSON(apiUrl, data)
+	if err != nil {
+		return nil, err
+	}
+
+	result := &ContactWayDetailRes{}
+	err = json.Unmarshal(body, result)
+	return &result.ContactWay, err
 }
