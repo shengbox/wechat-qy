@@ -356,3 +356,11 @@ type ContactWay struct {
 	Party       []any    `json:"party"`
 	Conclusions any      `json:"conclusions"`
 }
+
+type NewExternalUseridRes struct {
+	BaseResp `json:",inline"`
+	Items    []struct {
+		ExternalUserid    string `json:"external_userid"`
+		NewExternalUserid string `json:"new_external_userid"`
+	} `json:"items"`
+}
