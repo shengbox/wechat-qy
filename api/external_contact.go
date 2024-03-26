@@ -24,6 +24,7 @@ const (
 
 	listContactWayURI = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/list_contact_way"
 	getContactWayURI  = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get_contact_way"
+	delContactWayURI  = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/del_contact_way"
 
 	getNewExternalUseridURI = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get_new_external_userid"
 )
@@ -371,6 +372,29 @@ func (a *API) GetContactWay(configID string) (*ContactWay, error) {
 	return &result.ContactWay, err
 }
 
+func (a *API) DelContactWay(configID string) (*BaseResp, error) {
+	token, err := a.Tokener.Token()
+	if err != nil {
+		return nil, err
+	}
+	qs := make(url.Values)
+	qs.Add("access_token", token)
+	apiUrl := delContactWayURI + "?" + qs.Encode()
+	data, err := json.Marshal(map[string]any{
+		"config_id": configID,
+	})
+	if err != nil {
+		return nil, err
+	}
+	body, err := a.Client.PostJSON(apiUrl, data)
+	if err != nil {
+		return nil, err
+	}
+	result := &BaseResp{}
+	err = json.Unmarshal(body, result)
+	return result, err
+}
+
 func (a *API) GetNewExternalUserid(externalUseridList []string) (*NewExternalUseridRes, error) {
 	token, err := a.Tokener.Token()
 	if err != nil {
@@ -378,6 +402,7 @@ func (a *API) GetNewExternalUserid(externalUseridList []string) (*NewExternalUse
 	}
 	qs := make(url.Values)
 	qs.Add("access_token", token)
+	qs.Add("debug", "1")
 	apiUrl := getNewExternalUseridURI + "?" + qs.Encode()
 	data, err := json.Marshal(map[string]any{
 		"external_userid_list": externalUseridList,
