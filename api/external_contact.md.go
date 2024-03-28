@@ -364,3 +364,28 @@ type NewExternalUseridRes struct {
 		NewExternalUserid string `json:"new_external_userid"`
 	} `json:"items"`
 }
+
+type MsgTemplate struct {
+	ChatType       string       `json:"chat_type,omitempty"`
+	ExternalUserid []string     `json:"external_userid,omitempty"`
+	ChatIDList     []string     `json:"chat_id_list,omitempty"`
+	TagFilter      TagFilter    `json:"tag_filter,omitempty"`
+	Sender         string       `json:"sender,omitempty"`
+	AllowSelect    bool         `json:"allow_select,omitempty"`
+	Text           Text         `json:"text,omitempty"`
+	Attachments    []Attachment `json:"attachments,omitempty"`
+}
+
+type TagFilter struct {
+	GroupList []GroupList `json:"group_list"`
+}
+
+type GroupList struct {
+	TagList []string `json:"tag_list"`
+}
+
+type MsgTemplateRes struct {
+	BaseResp `json:",inline"`
+	FailList []string `json:"fail_list"`
+	Msgid    string   `json:"msgid"`
+}

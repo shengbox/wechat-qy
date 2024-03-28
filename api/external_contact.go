@@ -21,6 +21,7 @@ const (
 	getMomentListURI         = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get_moment_list"
 	getGroupmsgListURI       = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get_groupmsg_list_v2"
 	sendWelcomeMsgURI        = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/send_welcome_msg"
+	addMsgTemplateURI        = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/add_msg_template"
 
 	listContactWayURI = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/list_contact_way"
 	getContactWayURI  = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get_contact_way"
@@ -418,4 +419,25 @@ func (a *API) GetNewExternalUserid(externalUseridList []string) (*NewExternalUse
 	result := &NewExternalUseridRes{}
 	err = json.Unmarshal(body, result)
 	return result, err
+}
+
+func (a *API) AddMsgTemplate(template *MsgTemplate) (*MsgTemplateRes, error) {
+	token, err := a.Tokener.Token()
+	if err != nil {
+		return nil, err
+	}
+	qs := make(url.Values)
+	qs.Add("access_token", token)
+	apiUrl := addMsgTemplateURI + "?" + qs.Encode()
+	data, err := json.Marshal(template)
+	if err != nil {
+		return nil, err
+	}
+	body, err := a.Client.PostJSON(apiUrl, data)
+	if err != nil {
+		return nil, err
+	}
+	var result MsgTemplateRes
+	err = json.Unmarshal(body, &result)
+	return &result, err
 }
