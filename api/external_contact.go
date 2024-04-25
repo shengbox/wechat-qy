@@ -28,6 +28,7 @@ const (
 	delContactWayURI  = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/del_contact_way"
 
 	getNewExternalUseridURI = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get_new_external_userid"
+	createLinkURI           = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/customer_acquisition/create_link" // 创建获客链接
 )
 
 // GetExternalContact 获取客户详情
@@ -438,6 +439,28 @@ func (a *API) AddMsgTemplate(template *MsgTemplate) (*MsgTemplateRes, error) {
 		return nil, err
 	}
 	var result MsgTemplateRes
+	err = json.Unmarshal(body, &result)
+	return &result, err
+}
+
+// 创建获客链接
+func (a *API) CreateLink(req *CreateLinkReq) (*CreateLinkResp, error) {
+	token, err := a.Tokener.Token()
+	if err != nil {
+		return nil, err
+	}
+	qs := make(url.Values)
+	qs.Add("access_token", token)
+	apiUrl := createLinkURI + "?" + qs.Encode()
+	data, err := json.Marshal(req)
+	if err != nil {
+		return nil, err
+	}
+	body, err := a.Client.PostJSON(apiUrl, data)
+	if err != nil {
+		return nil, err
+	}
+	var result CreateLinkResp
 	err = json.Unmarshal(body, &result)
 	return &result, err
 }

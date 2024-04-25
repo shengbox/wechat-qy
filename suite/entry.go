@@ -150,6 +150,18 @@ type RecvChangeEvent struct {
 	Event        string
 }
 
+type RecvCustomerAcquisitionEvent struct {
+	ToUserName     string
+	FromUserName   string
+	CreateTime     int64
+	MsgType        string
+	Event          string
+	ChangeType     string
+	UserID         string
+	ExternalUserID string
+	LinkId         string
+}
+
 //======= 客户事件 =======
 
 type RecvChangeExternalEvent struct {

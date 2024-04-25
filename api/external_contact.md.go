@@ -389,3 +389,22 @@ type MsgTemplateRes struct {
 	FailList []string `json:"fail_list"`
 	Msgid    string   `json:"msgid"`
 }
+
+type CreateLinkReq struct {
+	LinkName string `json:"link_name"`
+	Range    struct {
+		UserList       []string `json:"user_list"`
+		DepartmentList []int64  `json:"department_list"`
+	} `json:"range"`
+	SkipVerify bool `json:"skip_verify"`
+}
+
+type CreateLinkResp struct {
+	BaseResp
+	Link struct {
+		LinkID     string `json:"link_id"`
+		LinkName   string `json:"link_name"`
+		URL        string `json:"url"`
+		CreateTime int64  `json:"create_time"`
+	} `json:"link"`
+}
