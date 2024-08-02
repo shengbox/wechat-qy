@@ -164,6 +164,8 @@ func (s *Suite) Parse(body []byte, signature, timestamp, nonce string) (interfac
 		data = &RecvChangeExternalContactEvent{}
 	case "change_external_chat":
 		data = &RecvChangeExternalChatEvent{}
+	case "auto_activate":
+		data = &RecvAutoActivateEvent{}
 	default:
 		switch probeData.Event {
 		case "change_app_admin", "subscribe", "enter_agent", "unsubscribe":

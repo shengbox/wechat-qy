@@ -201,6 +201,21 @@ type RecvChangeExternalChatEvent struct {
 	MemChangeCnt            int
 }
 
+// 自动激活回调通知
+type RecvAutoActivateEvent struct {
+	RecvChangeExternalEvent `xml:",inline"`
+	Scene                   string //  许可自动激活的时机，1:企业成员主动访问应用，2:服务商调用消息推送接口，3:服务商调用互通接口
+
+	AccountList struct {
+		ActiveCode         string // 自动激活的许可账号激活码
+		Type               int
+		ExpireTime         int64
+		UserId             string
+		PreviousStatus     int
+		PreviousActiveCode string // 仅针对已激活的成员进行自动激活时返回，返回该成员之前激活的旧的激活码
+	}
+}
+
 type SysApprovalChangeEvent struct {
 	ToUserName   string //ww84332616507d83b8
 	FromUserName string //sys
