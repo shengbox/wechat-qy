@@ -28,10 +28,10 @@ type FollowUser struct {
 	Userid         string   `json:"userid"`
 }
 type Tag struct {
-	GroupName string `json:"group_name"`
-	TagId     string `json:"tag_id"`
-	TagName   string `json:"tag_name"`
-	Type      int    `json:"type"`
+	GroupName string `json:"group_name,omitempty"`
+	TagId     string `json:"tag_id,omitempty"`
+	TagName   string `json:"tag_name,omitempty"`
+	Type      int    `json:"type,omitempty"`
 }
 
 type ExternalContactResp struct {
@@ -89,10 +89,10 @@ type AddContactWayResp struct {
 }
 
 type UserBehaviorDataReq struct {
-	Userid    []string `json:"userid"`
-	Partyid   []int    `json:"partyid"`
-	StartTime int64    `json:"start_time"`
-	EndTime   int64    `json:"end_time"`
+	Userid    []string `json:"userid,omitempty"`
+	Partyid   []int    `json:"partyid,omitempty"`
+	StartTime int64    `json:"start_time,omitempty"`
+	EndTime   int64    `json:"end_time,omitempty"`
 }
 
 type UserBehaviorDataResp struct {
@@ -112,15 +112,15 @@ type BehaviorData struct {
 }
 
 type GroupChatStatisticReq struct {
-	DayBeginTime int64 `json:"day_begin_time"`
-	DayEndTime   int64 `json:"day_end_time"`
+	DayBeginTime int64 `json:"day_begin_time,omitempty"`
+	DayEndTime   int64 `json:"day_end_time,omitempty"`
 	OwnerFilter  struct {
-		UseridList []string `json:"userid_list"`
-	} `json:"owner_filter"`
-	OrderBy  int `json:"order_by"`
-	OrderAsc int `json:"order_asc"`
-	Offset   int `json:"offset"`
-	Limit    int `json:"limit"`
+		UseridList []string `json:"userid_list,omitempty"`
+	} `json:"owner_filter,omitempty"`
+	OrderBy  int `json:"order_by,omitempty"`
+	OrderAsc int `json:"order_asc,omitempty"`
+	Offset   int `json:"offset,omitempty"`
+	Limit    int `json:"limit,omitempty"`
 }
 
 type GroupChatStatisticResp struct {
@@ -196,40 +196,40 @@ type MomentListResp struct {
 }
 
 type Moment struct {
-	MomentID    string `json:"moment_id"`
-	Creator     string `json:"creator"`
-	CreateTime  int64  `json:"create_time"`
-	CreateType  int64  `json:"create_type"`
-	VisibleType int64  `json:"visible_type"`
+	MomentID    string `json:"moment_id" bson:"moment_id"`
+	Creator     string `json:"creator" bson:"creator"`
+	CreateTime  int64  `json:"create_time" bson:"create_time"`
+	CreateType  int64  `json:"create_type" bson:"create_type"`
+	VisibleType int64  `json:"visible_type" bson:"visible_type"`
 	Text        struct {
-		Content string `json:"content"`
-	} `json:"text"`
+		Content string `json:"content" bson:"content"`
+	} `json:"text" bson:"text"`
 	Image []struct {
-		MediaID string `json:"media_id"`
-	} `json:"image"`
+		MediaID string `json:"media_id" bson:"media_id"`
+	} `json:"image" bson:"image"`
 }
 
 type GroupChat struct {
-	ChatId     string `json:"chat_id"`
+	ChatId     string `json:"chat_id" bson:"chat_id"`
 	Name       string `json:"name"`
 	Owner      string `json:"owner"`
-	CreateTime int    `json:"create_time"`
+	CreateTime int    `json:"create_time" bson:"create_time"`
 	Notice     string `json:"notice"`
 	MemberList []struct {
 		Userid    string `json:"userid"`
 		Type      int    `json:"type"`
-		JoinTime  int    `json:"join_time"`
-		JoinScene int    `json:"join_scene"`
+		JoinTime  int    `json:"join_time" bson:"join_time"`
+		JoinScene int    `json:"join_scene" bson:"join_scene"`
 		Invitor   struct {
 			Userid string `json:"userid"`
 		} `json:"invitor,omitempty"`
 		GroupNickname string `json:"group_nickname"`
 		Name          string `json:"name"`
 		Unionid       string `json:"unionid,omitempty"`
-	} `json:"member_list"`
+	} `json:"member_list" bson:"member_list"`
 	AdminList []struct {
 		Userid string `json:"userid"`
-	} `json:"admin_list"`
+	} `json:"admin_list" bson:"admin_list"`
 }
 
 type CorpTagListResp struct {
@@ -290,7 +290,7 @@ type GroupMsgList struct {
 }
 
 type Attachment struct {
-	Msgtype     string       `json:"msgtype"`
+	Msgtype     string       `json:"msgtype,omitempty"`
 	Image       *Image       `json:"image,omitempty"`
 	Link        *Link        `json:"link,omitempty"`
 	Miniprogram *Miniprogram `json:"miniprogram,omitempty"`
@@ -303,8 +303,8 @@ type File struct {
 }
 
 type Image struct {
-	MediaID string `json:"media_id"`
-	PicURL  string `json:"pic_url"`
+	MediaID string `json:"media_id,omitempty"`
+	PicURL  string `json:"pic_url,omitempty"`
 }
 
 type Link struct {
@@ -407,4 +407,44 @@ type CreateLinkResp struct {
 		URL        string `json:"url"`
 		CreateTime int64  `json:"create_time"`
 	} `json:"link"`
+}
+type MomentTask struct {
+	Text         Text         `json:"text,omitempty"`
+	Attachments  []Attachment `json:"attachments,omitempty"`
+	VisibleRange VisibleRange `json:"visible_range,omitempty"`
+}
+
+type VisibleRange struct {
+	SenderList          *SenderList          `json:"sender_list,omitempty"`
+	ExternalContactList *ExternalContactList `json:"external_contact_list,omitempty"`
+}
+
+type ExternalContactList struct {
+	TagList []string `json:"tag_list,omitempty"`
+}
+
+type SenderList struct {
+	UserList       []string `json:"user_list,omitempty"`
+	DepartmentList []int64  `json:"department_list,omitempty"`
+}
+
+type MomentTaskResp struct {
+	BaseResp `json:",inline"`
+	Jobid    string `json:"jobid"`
+}
+
+type AddTagReq struct {
+	GroupID   string `json:"group_id"`
+	GroupName string `json:"group_name"`
+	Order     int64  `json:"order"`
+	Tag       []struct {
+		Name  string `json:"name"`
+		Order int64  `json:"order"`
+	} `json:"tag"`
+	Agentid int64 `json:"agentid"`
+}
+
+type AddTagResp struct {
+	BaseResp `json:",inline"`
+	TagGroup TagGroup `json:"tag_group"`
 }

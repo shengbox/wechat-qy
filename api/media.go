@@ -9,9 +9,10 @@ import (
 )
 
 const (
-	uploadMediaURI   = "https://qyapi.weixin.qq.com/cgi-bin/media/upload"
-	downloadMediaURI = "https://qyapi.weixin.qq.com/cgi-bin/media/get"
-	uploadImgURI     = "https://qyapi.weixin.qq.com/cgi-bin/media/uploadimg"
+	uploadMediaURI      = "https://qyapi.weixin.qq.com/cgi-bin/media/upload"
+	downloadMediaURI    = "https://qyapi.weixin.qq.com/cgi-bin/media/get"
+	uploadImgURI        = "https://qyapi.weixin.qq.com/cgi-bin/media/uploadimg"
+	uploadAttachmentURI = "https://qyapi.weixin.qq.com/cgi-bin/media/upload_attachment"
 )
 
 type mediaType string
@@ -29,7 +30,29 @@ type UploadedMedia struct {
 	BaseResp  `bson:",inline" json:",inline"`
 	Type      string `json:"type"`
 	MediaID   string `json:"media_id"`
-	CreatedAt string `json:"created_at"`
+	CreatedAt any    `json:"created_at"`
+}
+
+// UploadAttachment 上传附件资源 素材上传得到media_id，该media_id仅三天内有效
+func (a *API) UploadAttachment(mediaType mediaType, attachmentType, filename string, reader io.Reader) (UploadedMedia, error) {
+	media := UploadedMedia{}
+	token, err := a.Tokener.Token()
+	if err != nil {
+		return media, err
+	}
+	qs := make(url.Values)
+	qs.Add("access_token", token)
+	qs.Add("type", string(mediaType))
+	qs.Add("media_type", string(mediaType))
+	qs.Add("attachment_type", attachmentType)
+	url := uploadAttachmentURI + "?" + qs.Encode()
+
+	body, err := a.Client.PostMultipart(url, "media", filename, reader)
+	if err != nil {
+		return media, err
+	}
+	err = json.Unmarshal(body, &media)
+	return media, err
 }
 
 // UploadMedia 方法用于将媒体文件上传至微信服务器

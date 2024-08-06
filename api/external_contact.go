@@ -17,6 +17,7 @@ const (
 	externalGroupChatListURI = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/groupchat/list"
 	externalGroupChatGetURI  = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/groupchat/get"
 	getCorpTagListURI        = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get_corp_tag_list"
+	addCorpTagURI            = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/add_corp_tag"
 	markTagURI               = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/mark_tag"
 	getMomentListURI         = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get_moment_list"
 	getGroupmsgListURI       = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get_groupmsg_list_v2"
@@ -29,6 +30,7 @@ const (
 
 	getNewExternalUseridURI = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get_new_external_userid"
 	createLinkURI           = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/customer_acquisition/create_link" // 创建获客链接
+	addMomentTaskURI        = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/add_moment_task"                  // 创建发表任务
 )
 
 // GetExternalContact 获取客户详情
@@ -262,6 +264,27 @@ func (a *API) GetCorpTagList(req interface{}) ([]TagGroup, error) {
 	return result.TagGroup, err
 }
 
+func (a *API) AddCorpTag(req *AddTagReq) (*TagGroup, error) {
+	token, err := a.Tokener.Token()
+	if err != nil {
+		return nil, err
+	}
+	qs := make(url.Values)
+	qs.Add("access_token", token)
+	apiUrl := addCorpTagURI + "?" + qs.Encode()
+	data, err := json.Marshal(req)
+	if err != nil {
+		return nil, err
+	}
+	body, err := a.Client.PostJSON(apiUrl, data)
+	if err != nil {
+		return nil, err
+	}
+	result := &AddTagResp{}
+	err = json.Unmarshal(body, result)
+	return &result.TagGroup, err
+}
+
 // MarkTag 编辑客户企业标签
 func (a *API) MarkTag(req *MakeTagReq) (*BaseResp, error) {
 	token, err := a.Tokener.Token()
@@ -461,6 +484,28 @@ func (a *API) CreateLink(req *CreateLinkReq) (*CreateLinkResp, error) {
 		return nil, err
 	}
 	var result CreateLinkResp
+	err = json.Unmarshal(body, &result)
+	return &result, err
+}
+
+// 创建发表任务
+func (a *API) AddMomentTask(req *MomentTask) (*MomentTaskResp, error) {
+	token, err := a.Tokener.Token()
+	if err != nil {
+		return nil, err
+	}
+	qs := make(url.Values)
+	qs.Add("access_token", token)
+	apiUrl := addMomentTaskURI + "?" + qs.Encode()
+	data, err := json.Marshal(req)
+	if err != nil {
+		return nil, err
+	}
+	body, err := a.Client.PostJSON(apiUrl, data)
+	if err != nil {
+		return nil, err
+	}
+	var result MomentTaskResp
 	err = json.Unmarshal(body, &result)
 	return &result, err
 }

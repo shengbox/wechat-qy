@@ -166,6 +166,8 @@ func (s *Suite) Parse(body []byte, signature, timestamp, nonce string) (interfac
 		data = &RecvChangeExternalChatEvent{}
 	case "auto_activate":
 		data = &RecvAutoActivateEvent{}
+	case "license_pay_success":
+		data = &LicensePaySuccess{}
 	default:
 		switch probeData.Event {
 		case "change_app_admin", "subscribe", "enter_agent", "unsubscribe":
@@ -344,6 +346,9 @@ func (s *Suite) GetPermanentCode(authCode string) (PermanentCodeInfo, error) {
 
 	result := PermanentCodeInfo{}
 	err = json.Unmarshal(body, &result)
+	if err != nil {
+		log.Println("GetPermanentCode", string(body))
+	}
 
 	return result, err
 }

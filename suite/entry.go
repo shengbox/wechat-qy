@@ -28,7 +28,7 @@ type Corporation struct {
 	AgentMax        int    `json:"corp_agent_max"`
 	QRCode          string `json:"corp_wxqrcode"`
 	SubjectType     any    `json:"subject_type"`
-	VerifiedEndTime string `json:"verified_end_time"`
+	VerifiedEndTime int64  `json:"verified_end_time"`
 }
 
 // Agent 用于表示应用基本信息
@@ -214,6 +214,17 @@ type RecvAutoActivateEvent struct {
 		PreviousStatus     int
 		PreviousActiveCode string // 仅针对已激活的成员进行自动激活时返回，返回该成员之前激活的旧的激活码
 	}
+}
+
+// 授权购买成功
+type LicensePaySuccess struct {
+	Text          string `xml:",chardata"`
+	ServiceCorpId string `xml:"ServiceCorpId"`
+	InfoType      string `xml:"InfoType"`
+	AuthCorpId    string `xml:"AuthCorpId"`
+	OrderId       string `xml:"OrderId"`
+	BuyerUserId   string `xml:"BuyerUserId"`
+	TimeStamp     string `xml:"TimeStamp"`
 }
 
 type SysApprovalChangeEvent struct {
