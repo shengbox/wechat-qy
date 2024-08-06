@@ -89,10 +89,10 @@ type AddContactWayResp struct {
 }
 
 type UserBehaviorDataReq struct {
-	Userid    []string `json:"userid"`
-	Partyid   []int    `json:"partyid"`
-	StartTime int64    `json:"start_time"`
-	EndTime   int64    `json:"end_time"`
+	Userid    []string `json:"userid,omitempty"`
+	Partyid   []int    `json:"partyid,omitempty"`
+	StartTime int64    `json:"start_time,omitempty"`
+	EndTime   int64    `json:"end_time,omitempty"`
 }
 
 type UserBehaviorDataResp struct {
@@ -112,15 +112,15 @@ type BehaviorData struct {
 }
 
 type GroupChatStatisticReq struct {
-	DayBeginTime int64 `json:"day_begin_time"`
-	DayEndTime   int64 `json:"day_end_time"`
+	DayBeginTime int64 `json:"day_begin_time,omitempty"`
+	DayEndTime   int64 `json:"day_end_time,omitempty"`
 	OwnerFilter  struct {
-		UseridList []string `json:"userid_list"`
-	} `json:"owner_filter"`
-	OrderBy  int `json:"order_by"`
-	OrderAsc int `json:"order_asc"`
-	Offset   int `json:"offset"`
-	Limit    int `json:"limit"`
+		UseridList []string `json:"userid_list,omitempty"`
+	} `json:"owner_filter,omitempty"`
+	OrderBy  int `json:"order_by,omitempty"`
+	OrderAsc int `json:"order_asc,omitempty"`
+	Offset   int `json:"offset,omitempty"`
+	Limit    int `json:"limit,omitempty"`
 }
 
 type GroupChatStatisticResp struct {
