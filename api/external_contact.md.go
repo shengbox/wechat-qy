@@ -70,10 +70,14 @@ type BatchExternalContactReq struct {
 type BatchExternalContactResp struct {
 	BaseResp            `json:",inline"`
 	ExternalContactList []struct {
-		FollowInfo      FollowUser      `json:"follow_info"`
+		FollowInfo      FollowInfo      `json:"follow_info"`
 		ExternalContact ExternalContact `json:"external_contact"`
 	} `json:"external_contact_list"`
 	NextCursor string `json:"next_cursor"`
+}
+type FollowInfo struct {
+	TagID      []string `json:"tag_id"`
+	FollowUser `json:",inline"`
 }
 
 type Conclusions struct {
