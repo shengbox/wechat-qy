@@ -9,6 +9,7 @@ import (
 
 const (
 	getExternalContactURI    = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get"
+	batchExternalContactURI  = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/batch/get_by_user"
 	listExternalContactURI   = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/list"
 	addContactWayURI         = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/add_contact_way"
 	getUserBehaviorDataURI   = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get_user_behavior_data"
@@ -54,6 +55,28 @@ func (a *API) GetExternalContact(externalUserId string) (*ExternalContactResp, e
 	result := &ExternalContactResp{}
 	err = json.Unmarshal(body, result)
 
+	return result, err
+}
+
+// BatchExternalContact 批量获取客户详情
+func (a *API) BatchExternalContact(req *BatchExternalContactReq) (*BatchExternalContactResp, error) {
+	token, err := a.Tokener.Token()
+	if err != nil {
+		return nil, err
+	}
+	qs := make(url.Values)
+	qs.Add("access_token", token)
+	apiUrl := batchExternalContactURI + "?" + qs.Encode()
+	data, err := json.Marshal(req)
+	if err != nil {
+		return nil, err
+	}
+	body, err := a.Client.PostJSON(apiUrl, data)
+	if err != nil {
+		return nil, err
+	}
+	result := &BatchExternalContactResp{}
+	err = json.Unmarshal(body, result)
 	return result, err
 }
 

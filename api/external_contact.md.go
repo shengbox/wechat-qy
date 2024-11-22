@@ -61,6 +61,21 @@ type AddContactWayReq struct {
 	Conclusions   Conclusions `json:"conclusions"`
 }
 
+type BatchExternalContactReq struct {
+	UseridList []string `json:"userid_list"`
+	Cursor     string   `json:"cursor"`
+	Limit      int64    `json:"limit"`
+}
+
+type BatchExternalContactResp struct {
+	BaseResp            `json:",inline"`
+	ExternalContactList []struct {
+		FollowInfo      FollowUser      `json:"follow_info"`
+		ExternalContact ExternalContact `json:"external_contact"`
+	} `json:"external_contact_list"`
+	NextCursor string `json:"next_cursor"`
+}
+
 type Conclusions struct {
 	Text struct {
 		Content string `json:"content"`
