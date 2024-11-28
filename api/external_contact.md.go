@@ -467,3 +467,24 @@ type AddTagResp struct {
 	BaseResp `json:",inline"`
 	TagGroup TagGroup `json:"tag_group"`
 }
+
+type GroupmsgSendResultReq struct {
+	Msgid  string `json:"msgid"`
+	Userid string `json:"userid"`
+	Limit  int64  `json:"limit"`
+	Cursor string `json:"cursor"`
+}
+
+type GroupmsgSendResultResp struct {
+	BaseResp   `json:",inline"`
+	NextCursor string         `json:"next_cursor"`
+	SendList   []SendListItem `json:"send_list"`
+}
+
+type SendListItem struct {
+	ExternalUserid string `json:"external_userid"`
+	ChatID         string `json:"chat_id"`
+	Userid         string `json:"userid"`
+	Status         int64  `json:"status"`
+	SendTime       int64  `json:"send_time"`
+}
