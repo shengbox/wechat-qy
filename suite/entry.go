@@ -435,6 +435,33 @@ type Order struct {
 	OrderType int64  `json:"order_type"`
 }
 
+type GetOrderResp struct {
+	BaseResp `json:",inline"`
+	Order    OrderInfo `json:"order"`
+}
+type OrderInfo struct {
+	OrderID         string          `json:"order_id"`
+	OrderType       int64           `json:"order_type"`
+	OrderStatus     int64           `json:"order_status"`
+	Corpid          string          `json:"corpid"`
+	Price           int64           `json:"price"`
+	AccountCount    AccountCount    `json:"account_count"`
+	AccountDuration AccountDuration `json:"account_duration"`
+	CreateTime      int64           `json:"create_time"`
+	PayTime         int64           `json:"pay_time"`
+}
+
+type AccountCount struct {
+	BaseCount            int64 `json:"base_count"`
+	ExternalContactCount int64 `json:"external_contact_count"`
+}
+
+type AccountDuration struct {
+	Months        int64 `json:"months"`
+	Days          int64 `json:"days"`
+	NewExpireTime int64 `json:"new_expire_time"`
+}
+
 type OrderAccountRes struct {
 	BaseResp    `json:",inline"`
 	HasMore     int64          `json:"has_more"`

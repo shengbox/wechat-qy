@@ -43,6 +43,7 @@ const (
 	getActiveInfoByUserURI = "https://qyapi.weixin.qq.com/cgi-bin/license/get_active_info_by_user"
 	listActivedAccountURI  = "https://qyapi.weixin.qq.com/cgi-bin/license/list_actived_account"
 	listOrderURI           = "https://qyapi.weixin.qq.com/cgi-bin/license/list_order"
+	getOrderURI            = "https://qyapi.weixin.qq.com/cgi-bin/license/get_order"
 	listOrderAccountURI    = "https://qyapi.weixin.qq.com/cgi-bin/license/list_order_account"
 )
 
@@ -789,7 +790,7 @@ func (s *Suite) ListActivedAccount(corpID string) (*ActivedList, error) {
 }
 
 // 获取订单列表
-func (s *Suite) ListOrder(orderID string) (*OrderListRes, error) {
+func (s *Suite) ListOrder(corpId string) (*OrderListRes, error) {
 	token, err := s.tokener.Token()
 	if err != nil {
 		return nil, err
@@ -798,13 +799,34 @@ func (s *Suite) ListOrder(orderID string) (*OrderListRes, error) {
 	qs.Add("provider_access_token", token)
 	uri := listOrderURI + "?" + qs.Encode()
 	buf, _ := json.Marshal(map[string]any{
-		"corpid": orderID,
+		"corpid": corpId,
 	})
 	body, err := s.client.PostJSON(uri, buf)
 	if err != nil {
 		return nil, err
 	}
 	var result OrderListRes
+	err = json.Unmarshal(body, &result)
+	return &result, err
+}
+
+// 获取订单详情
+func (s *Suite) GetOrder(orderID string) (*GetOrderResp, error) {
+	token, err := s.tokener.Token()
+	if err != nil {
+		return nil, err
+	}
+	qs := url.Values{}
+	qs.Add("provider_access_token", token)
+	uri := getOrderURI + "?" + qs.Encode()
+	buf, _ := json.Marshal(map[string]any{
+		"order_id": orderID,
+	})
+	body, err := s.client.PostJSON(uri, buf)
+	if err != nil {
+		return nil, err
+	}
+	var result GetOrderResp
 	err = json.Unmarshal(body, &result)
 	return &result, err
 }
