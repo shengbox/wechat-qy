@@ -396,11 +396,11 @@ type MsgTemplate struct {
 }
 
 type TagFilter struct {
-	GroupList []GroupList `json:"group_list"`
+	GroupList []GroupList `json:"group_list,omitempty"`
 }
 
 type GroupList struct {
-	TagList []string `json:"tag_list"`
+	TagList []string `json:"tag_list,omitempty"`
 }
 
 type MsgTemplateRes struct {
