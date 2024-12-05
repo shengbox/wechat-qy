@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"net/url"
 )
@@ -24,7 +25,7 @@ const (
 	getGroupmsgListURI       = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get_groupmsg_list_v2"
 	sendWelcomeMsgURI        = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/send_welcome_msg"
 	addMsgTemplateURI        = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/add_msg_template"
-
+	remindGroupmsgSendURI    = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/remind_groupmsg_send"     //提醒成员群发
 	getGroupmsgSendResultURI = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get_groupmsg_send_result" // 群发结果
 
 	listContactWayURI = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/list_contact_way"
@@ -34,6 +35,8 @@ const (
 	getNewExternalUseridURI = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get_new_external_userid"
 	createLinkURI           = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/customer_acquisition/create_link" // 创建获客链接
 	addMomentTaskURI        = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/add_moment_task"                  // 创建发表任务
+	getMomentTaskResultURI  = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get_moment_task_result"           // 获取任务创建结果
+
 )
 
 // GetExternalContact 获取客户详情
@@ -491,6 +494,27 @@ func (a *API) AddMsgTemplate(template *MsgTemplate) (*MsgTemplateRes, error) {
 	return &result, err
 }
 
+func (a *API) RemindGroupmsgSend(msgid string) (*BaseResp, error) {
+	token, err := a.Tokener.Token()
+	if err != nil {
+		return nil, err
+	}
+	qs := make(url.Values)
+	qs.Add("access_token", token)
+	apiUrl := remindGroupmsgSendURI + "?" + qs.Encode()
+	data, err := json.Marshal(map[string]string{"msgid": msgid})
+	if err != nil {
+		return nil, err
+	}
+	body, err := a.Client.PostJSON(apiUrl, data)
+	if err != nil {
+		return nil, err
+	}
+	var result BaseResp
+	err = json.Unmarshal(body, &result)
+	return &result, err
+}
+
 // 创建获客链接
 func (a *API) CreateLink(req *CreateLinkReq) (*CreateLinkResp, error) {
 	token, err := a.Tokener.Token()
@@ -531,6 +555,26 @@ func (a *API) AddMomentTask(req *MomentTask) (*MomentTaskResp, error) {
 		return nil, err
 	}
 	var result MomentTaskResp
+	err = json.Unmarshal(body, &result)
+	return &result, err
+}
+
+// 获取任务创建结果
+func (a *API) GetMomentTaskResult(jobid string) (*GetMomentTaskResultResp, error) {
+	token, err := a.Tokener.Token()
+	if err != nil {
+		return nil, err
+	}
+	qs := make(url.Values)
+	qs.Add("access_token", token)
+	qs.Add("jobid", jobid)
+	apiUrl := getMomentTaskResultURI + "?" + qs.Encode()
+	body, err := a.Client.GetJSON(apiUrl)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println(string(body))
+	var result GetMomentTaskResultResp
 	err = json.Unmarshal(body, &result)
 	return &result, err
 }

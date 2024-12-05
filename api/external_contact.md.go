@@ -488,3 +488,13 @@ type SendListItem struct {
 	Status         int64  `json:"status"`
 	SendTime       int64  `json:"send_time"`
 }
+type GetMomentTaskResultResp struct {
+	BaseResp `json:",inline"`
+	Status   int64  `json:"status"`
+	Type     string `json:"type"`
+	Result   struct {
+		Errcode  int64  `json:"errcode"`
+		Errmsg   string `json:"errmsg"`
+		MomentID string `json:"moment_id"`
+	} `json:"result"`
+}
