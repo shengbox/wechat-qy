@@ -481,6 +481,16 @@ type GroupmsgSendResultResp struct {
 	SendList   []SendListItem `json:"send_list"`
 }
 
+type GetGroupmsgTaskResp struct {
+	BaseResp   `json:",inline"`
+	NextCursor string `json:"next_cursor"`
+	TaskList   []struct {
+		Userid   string `json:"userid"`
+		Status   int64  `json:"status"`
+		SendTime int64  `json:"send_time"`
+	} `json:"task_list"`
+}
+
 type SendListItem struct {
 	ExternalUserid string `json:"external_userid"`
 	ChatID         string `json:"chat_id"`

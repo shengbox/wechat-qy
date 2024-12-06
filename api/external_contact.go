@@ -27,6 +27,7 @@ const (
 	addMsgTemplateURI        = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/add_msg_template"
 	remindGroupmsgSendURI    = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/remind_groupmsg_send"     //提醒成员群发
 	getGroupmsgSendResultURI = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get_groupmsg_send_result" // 群发结果
+	getGroupmsgTask          = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get_groupmsg_task"        // 获取群发成员发送任务列表
 
 	listContactWayURI = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/list_contact_way"
 	getContactWayURI  = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get_contact_way"
@@ -575,6 +576,27 @@ func (a *API) GetMomentTaskResult(jobid string) (*GetMomentTaskResultResp, error
 	}
 	fmt.Println(string(body))
 	var result GetMomentTaskResultResp
+	err = json.Unmarshal(body, &result)
+	return &result, err
+}
+
+func (a *API) GetGroupmsgTask(msgid, cursor string) (*GetGroupmsgTaskResp, error) {
+	token, err := a.Tokener.Token()
+	if err != nil {
+		return nil, err
+	}
+	qs := make(url.Values)
+	qs.Add("access_token", token)
+	apiUrl := getGroupmsgTask + "?" + qs.Encode()
+	data, err := json.Marshal(map[string]any{"msgid": msgid, "cursor": cursor})
+	if err != nil {
+		return nil, err
+	}
+	body, err := a.Client.PostJSON(apiUrl, data)
+	if err != nil {
+		return nil, err
+	}
+	var result GetGroupmsgTaskResp
 	err = json.Unmarshal(body, &result)
 	return &result, err
 }
