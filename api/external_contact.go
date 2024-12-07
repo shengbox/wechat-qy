@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"net/url"
 )
 
@@ -33,10 +32,9 @@ const (
 	getContactWayURI  = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get_contact_way"
 	delContactWayURI  = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/del_contact_way"
 
-	getNewExternalUseridURI = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get_new_external_userid"
-	createLinkURI           = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/customer_acquisition/create_link" // 创建获客链接
-	addMomentTaskURI        = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/add_moment_task"                  // 创建发表任务
-	getMomentTaskResultURI  = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get_moment_task_result"           // 获取任务创建结果
+	createLinkURI          = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/customer_acquisition/create_link" // 创建获客链接
+	addMomentTaskURI       = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/add_moment_task"                  // 创建发表任务
+	getMomentTaskResultURI = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get_moment_task_result"           // 获取任务创建结果
 
 )
 
@@ -445,31 +443,6 @@ func (a *API) DelContactWay(configID string) (*BaseResp, error) {
 		return nil, err
 	}
 	result := &BaseResp{}
-	err = json.Unmarshal(body, result)
-	return result, err
-}
-
-func (a *API) GetNewExternalUserid(externalUseridList []string) (*NewExternalUseridRes, error) {
-	token, err := a.Tokener.Token()
-	if err != nil {
-		return nil, err
-	}
-	qs := make(url.Values)
-	qs.Add("access_token", token)
-	qs.Add("debug", "1")
-	apiUrl := getNewExternalUseridURI + "?" + qs.Encode()
-	data, err := json.Marshal(map[string]any{
-		"external_userid_list": externalUseridList,
-	})
-	if err != nil {
-		return nil, err
-	}
-	body, err := a.Client.PostJSON(apiUrl, data)
-	if err != nil {
-		return nil, err
-	}
-	log.Println(string(body))
-	result := &NewExternalUseridRes{}
 	err = json.Unmarshal(body, result)
 	return result, err
 }
