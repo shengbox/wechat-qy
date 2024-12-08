@@ -133,11 +133,6 @@ func (s *Suite) Parse(body []byte, signature, timestamp, nonce string) (interfac
 		return nil, err
 	}
 
-	if suiteID != s.id {
-		log.Printf("the request is from suite[%s], not from suite[%s] origData=%s", suiteID, s.id, string(origData))
-		// return nil, fmt.Errorf("the request is from suite[%s], not from suite[%s]", suiteID, s.id)
-	}
-
 	probeData := &struct {
 		InfoType string
 		Event    string
@@ -145,6 +140,11 @@ func (s *Suite) Parse(body []byte, signature, timestamp, nonce string) (interfac
 
 	if err = xml.Unmarshal(origData, probeData); err != nil {
 		return nil, err
+	}
+
+	if suiteID != s.id {
+		log.Printf("the request is from suite[%s], not from suite[%s] event=%s", suiteID, s.id, probeData.Event)
+		// return nil, fmt.Errorf("the request is from suite[%s], not from suite[%s]", suiteID, s.id)
 	}
 
 	var data interface{}
