@@ -81,6 +81,12 @@ func (a *API) BatchExternalContact(req *BatchExternalContactReq) (*BatchExternal
 	}
 	result := &BatchExternalContactResp{}
 	err = json.Unmarshal(body, result)
+	if err != nil {
+		return nil, err
+	}
+	if result.Errcode != 0 {
+		return nil, errors.New(result.Errmsg)
+	}
 	return result, err
 }
 
@@ -288,6 +294,12 @@ func (a *API) GetCorpTagList(req interface{}) ([]TagGroup, error) {
 	}
 	result := &CorpTagListResp{}
 	err = json.Unmarshal(body, result)
+	if err != nil {
+		return nil, err
+	}
+	if result.Errcode != 0 {
+		return nil, errors.New(result.Errmsg)
+	}
 	return result.TagGroup, err
 }
 
