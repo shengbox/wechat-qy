@@ -7,9 +7,10 @@ import (
 )
 
 const (
-	syncCallProgramURI    = "https://qyapi.weixin.qq.com/cgi-bin/chatdata/sync_call_program"
+	syncCallProgramURI    = "https://qyapi.weixin.qq.com/cgi-bin/chatdata/sync_call_program" // 应用同步调用专区程序
 	asyncProgramTaskURI   = "https://qyapi.weixin.qq.com/cgi-bin/chatdata/async_program_task"
 	asyncProgramResultURI = "https://qyapi.weixin.qq.com/cgi-bin/chatdata/async_program_result"
+	setPublicKeyURI       = "https://qyapi.weixin.qq.com/cgi-bin/chatdata/set_public_key" // 设置公钥
 )
 
 type SyncCallProgramReq struct {
@@ -116,4 +117,35 @@ func (a *API) AsyncProgramResult(jobid string) (string, error) {
 		return "", errors.New(result.Errmsg)
 	}
 	return result.ResponseData, nil
+}
+
+// 设置公钥
+func (a *API) SetPublicKey(publicKey string, keyVer int) (*BaseResp, error) {
+	token, err := a.Tokener.Token()
+	if err != nil {
+		return nil, err
+	}
+	qs := make(url.Values)
+	qs.Add("access_token", token)
+	url := setPublicKeyURI + "?" + qs.Encode()
+	data, err := json.Marshal(map[string]any{
+		"public_key":     publicKey,
+		"public_key_ver": keyVer,
+	})
+	if err != nil {
+		return nil, err
+	}
+	body, err := a.Client.PostJSON(url, data)
+	if err != nil {
+		return nil, err
+	}
+	var result BaseResp
+	err = json.Unmarshal(body, &result)
+	if err != nil {
+		return nil, err
+	}
+	if result.Errcode != 0 {
+		return nil, errors.New(result.Errmsg)
+	}
+	return &result, nil
 }
