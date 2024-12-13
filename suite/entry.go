@@ -162,6 +162,15 @@ type RecvCustomerAcquisitionEvent struct {
 	LinkId         string
 }
 
+type ProgramNotifyEvent struct {
+	ToUserName   string
+	FromUserName string
+	MsgType      string
+	Event        string
+	CreateTime   int64
+	NotifyId     string
+}
+
 //======= 客户事件 =======
 
 type RecvChangeExternalEvent struct {

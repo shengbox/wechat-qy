@@ -177,6 +177,8 @@ func (s *Suite) Parse(body []byte, signature, timestamp, nonce string) (interfac
 			data = &SysApprovalChangeEvent{}
 		case "customer_acquisition":
 			data = &RecvCustomerAcquisitionEvent{}
+		case "program_notify":
+			data = &ProgramNotifyEvent{}
 		default:
 			return nil, fmt.Errorf("unknown message type: %s origData: %s", probeData.InfoType, origData)
 		}
