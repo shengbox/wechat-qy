@@ -10,9 +10,10 @@ const (
 	syncCallProgramURI    = "https://qyapi.weixin.qq.com/cgi-bin/chatdata/sync_call_program" // 应用同步调用专区程序
 	asyncProgramTaskURI   = "https://qyapi.weixin.qq.com/cgi-bin/chatdata/async_program_task"
 	asyncProgramResultURI = "https://qyapi.weixin.qq.com/cgi-bin/chatdata/async_program_result"
-	setPublicKeyURI       = "https://qyapi.weixin.qq.com/cgi-bin/chatdata/set_public_key"   // 设置公钥
-	openDebugModeURI      = "https://qyapi.weixin.qq.com/cgi-bin/chatdata/open_debug_mode"  // 应用开启调试模式
-	closeDebugModeURI     = "https://qyapi.weixin.qq.com/cgi-bin/chatdata/close_debug_mode" // 关闭专区调试模式
+	setPublicKeyURI       = "https://qyapi.weixin.qq.com/cgi-bin/chatdata/set_public_key"       // 设置公钥
+	openDebugModeURI      = "https://qyapi.weixin.qq.com/cgi-bin/chatdata/open_debug_mode"      // 应用开启调试模式
+	closeDebugModeURI     = "https://qyapi.weixin.qq.com/cgi-bin/chatdata/close_debug_mode"     // 关闭专区调试模式
+	setReceiveCallbackURI = "https://qyapi.weixin.qq.com/cgi-bin/chatdata/set_receive_callback" // 设置专区接收回调事件
 )
 
 type SyncCallProgramReq struct {
@@ -192,6 +193,34 @@ func (a *API) CloseDebugMode(programId string) (*BaseResp, error) {
 	qs := make(url.Values)
 	qs.Add("access_token", token)
 	url := closeDebugModeURI + "?" + qs.Encode()
+	data, err := json.Marshal(map[string]any{"program_id": programId})
+	if err != nil {
+		return nil, err
+	}
+	body, err := a.Client.PostJSON(url, data)
+	if err != nil {
+		return nil, err
+	}
+	var result BaseResp
+	err = json.Unmarshal(body, &result)
+	if err != nil {
+		return nil, err
+	}
+	if result.Errcode != 0 {
+		return nil, errors.New(result.Errmsg)
+	}
+	return &result, nil
+}
+
+// 设置专区接收回调事件
+func (a *API) SetReceiveCallback(programId string) (*BaseResp, error) {
+	token, err := a.Tokener.Token()
+	if err != nil {
+		return nil, err
+	}
+	qs := make(url.Values)
+	qs.Add("access_token", token)
+	url := setReceiveCallbackURI + "?" + qs.Encode()
 	data, err := json.Marshal(map[string]any{"program_id": programId})
 	if err != nil {
 		return nil, err
