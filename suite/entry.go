@@ -169,6 +169,7 @@ type ProgramNotifyEvent struct {
 	Event        string
 	CreateTime   int64
 	NotifyId     string
+	NotifyScene  string
 }
 
 //======= 客户事件 =======
