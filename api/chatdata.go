@@ -279,7 +279,7 @@ func (a *API) GetAuthUserList(cursor string) (*AuthUserListResp, error) {
 	qs := make(url.Values)
 	qs.Add("access_token", token)
 	url := getAuthUserListURI + "?" + qs.Encode()
-	param := map[string]any{"limit": 2}
+	param := map[string]any{"limit": 1000}
 	if cursor != "" {
 		param["cursor"] = cursor
 	}
