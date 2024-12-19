@@ -15,6 +15,7 @@ const (
 	closeDebugModeURI     = "https://qyapi.weixin.qq.com/cgi-bin/chatdata/close_debug_mode"     // 关闭专区调试模式
 	setReceiveCallbackURI = "https://qyapi.weixin.qq.com/cgi-bin/chatdata/set_receive_callback" // 设置专区接收回调事件
 	getCorpAuthInfoURI    = "https://qyapi.weixin.qq.com/cgi-bin/chatdata/get_corp_auth_info"   // 获取数据与智能专区授权信息
+	getAuthUserListURI    = "https://qyapi.weixin.qq.com/cgi-bin/chatdata/get_auth_user_list"   // 获取授权存档的成员列表
 )
 
 type SyncCallProgramReq struct {
@@ -259,6 +260,38 @@ func (a *API) GetCorpAuthInfo() (*GetCorpAuthInfoResp, error) {
 		return nil, err
 	}
 	var result GetCorpAuthInfoResp
+	err = json.Unmarshal(body, &result)
+	if err != nil {
+		return nil, err
+	}
+	if result.Errcode != 0 {
+		return nil, errors.New(result.Errmsg)
+	}
+	return &result, nil
+}
+
+// 获取授权存档的成员列表
+func (a *API) GetAuthUserList(cursor string) (*AuthUserListResp, error) {
+	token, err := a.Tokener.Token()
+	if err != nil {
+		return nil, err
+	}
+	qs := make(url.Values)
+	qs.Add("access_token", token)
+	url := getAuthUserListURI + "?" + qs.Encode()
+	param := map[string]any{"limit": 2}
+	if cursor != "" {
+		param["cursor"] = cursor
+	}
+	data, err := json.Marshal(param)
+	if err != nil {
+		return nil, err
+	}
+	body, err := a.Client.PostJSON(url, data)
+	if err != nil {
+		return nil, err
+	}
+	var result AuthUserListResp
 	err = json.Unmarshal(body, &result)
 	if err != nil {
 		return nil, err

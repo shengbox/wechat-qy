@@ -19,3 +19,15 @@ type AuthScope struct {
 	DepartmentIDList []int64  `json:"department_id_list"`
 	TagIDList        []int64  `json:"tag_id_list"`
 }
+
+type AuthUserListResp struct {
+	BaseResp     `json:",inline"`
+	HasMore      int64          `json:"has_more"`
+	NextCursor   string         `json:"next_cursor"`
+	AuthUserList []AuthUserList `json:"auth_user_list"`
+}
+
+type AuthUserList struct {
+	Userid      string  `json:"userid"`
+	EditionList []int64 `json:"edition_list"`
+}

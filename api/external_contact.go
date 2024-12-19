@@ -35,7 +35,6 @@ const (
 	createLinkURI          = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/customer_acquisition/create_link" // 创建获客链接
 	addMomentTaskURI       = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/add_moment_task"                  // 创建发表任务
 	getMomentTaskResultURI = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get_moment_task_result"           // 获取任务创建结果
-
 )
 
 // GetExternalContact 获取客户详情
