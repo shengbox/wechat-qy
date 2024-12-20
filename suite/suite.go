@@ -488,6 +488,12 @@ func (s *Suite) ActiveAccount(corpID, activeCode, userid string) (*BaseResp, err
 
 	result := &BaseResp{}
 	err = json.Unmarshal(body, result)
+	if err != nil {
+		return nil, err
+	}
+	if result.Errcode > 0 {
+		return nil, errors.New(result.Errmsg)
+	}
 
 	return result, err
 }
