@@ -2,6 +2,7 @@ package suite
 
 import (
 	"encoding/json"
+	"errors"
 	"net/url"
 )
 
@@ -13,6 +14,7 @@ const (
 	getOrderURI            = "https://qyapi.weixin.qq.com/cgi-bin/license/get_order"               // 获取订单详情
 	listOrderAccountURI    = "https://qyapi.weixin.qq.com/cgi-bin/license/list_order_account"      // 获取订单中的账号列表
 	getActiveInfoByCodeURI = "https://qyapi.weixin.qq.com/cgi-bin/license/get_active_info_by_code" // 获取激活码详情
+	transferLicenseURI     = "https://qyapi.weixin.qq.com/cgi-bin/license/batch_transfer_license"  // 账号继承
 )
 
 // 获取订单列表
@@ -142,4 +144,32 @@ func (s *Suite) GetActiveInfoByCode(corpID, activeCode string) (*CodeActiveInfoR
 	result := CodeActiveInfoRes{}
 	err = json.Unmarshal(body, &result)
 	return &result, err
+}
+
+// 转移激活码
+func (s *Suite) TransferLicense(corpID, handoverUserid, takeoverUserid string) (*[]TransferResult, error) {
+	token, err := s.tokener.Token()
+	if err != nil {
+		return nil, err
+	}
+	qs := url.Values{}
+	qs.Add("provider_access_token", token)
+	uri := transferLicenseURI + "?" + qs.Encode()
+	buf, _ := json.Marshal(map[string]any{
+		"corpid": corpID,
+		"transfer_list": []map[string]any{{
+			"handover_userid": handoverUserid,
+			"takeover_userid": takeoverUserid,
+		}},
+	})
+	body, err := s.client.PostJSON(uri, buf)
+	if err != nil {
+		return nil, err
+	}
+	result := TransferResultRes{}
+	err = json.Unmarshal(body, &result)
+	if result.Errcode > 0 {
+		return nil, errors.New(result.Errmsg)
+	}
+	return &result.TransferResult, err
 }

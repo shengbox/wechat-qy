@@ -104,3 +104,12 @@ type OrderAccount struct {
 	Type       int64  `json:"type"`
 	Userid     string `json:"userid"`
 }
+type TransferResultRes struct {
+	BaseResp       `json:",inline"`
+	TransferResult []TransferResult `json:"transfer_result"`
+}
+type TransferResult struct {
+	HandoverUserid string `json:"handover_userid"`
+	TakeoverUserid string `json:"takeover_userid"`
+	Errcode        int64  `json:"errcode"`
+}
