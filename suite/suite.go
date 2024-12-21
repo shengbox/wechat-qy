@@ -136,7 +136,7 @@ func (s *Suite) Parse(body []byte, signature, timestamp, nonce string) (interfac
 	}
 
 	if suiteID != s.id {
-		log.Printf("the request is from suite[%s], not from suite[%s] event=%s", suiteID, s.id, probeData.Event)
+		// log.Printf("the request is from suite[%s], not from suite[%s] event=%s", suiteID, s.id, probeData.Event)
 		// return nil, fmt.Errorf("the request is from suite[%s], not from suite[%s]", suiteID, s.id)
 	}
 
