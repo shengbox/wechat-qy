@@ -175,6 +175,7 @@ type ProgramNotifyEvent struct {
 //======= 客户事件 =======
 
 type RecvChangeExternalEvent struct {
+	ToUserName string
 	SuiteId    string //第三方应用ID
 	AuthCorpId string //授权企业的CorpID
 	InfoType   string
