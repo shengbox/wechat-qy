@@ -166,6 +166,8 @@ func (s *Suite) Parse(body []byte, signature, timestamp, nonce string) (interfac
 		switch probeData.Event {
 		case "change_app_admin", "subscribe", "enter_agent", "unsubscribe":
 			data = &RecvChangeEvent{}
+		case "change_external_contact":
+			data = &RecvChangeExternalContactEvent{}
 		case "sys_approval_change":
 			data = &SysApprovalChangeEvent{}
 		case "customer_acquisition":
