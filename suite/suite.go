@@ -174,6 +174,10 @@ func (s *Suite) Parse(body []byte, signature, timestamp, nonce string) (interfac
 			data = &RecvCustomerAcquisitionEvent{}
 		case "program_notify":
 			data = &ProgramNotifyEvent{}
+		case "kf_msg_or_event":
+			data = &KfMsgOrEvent{}
+		case "kf_account_auth_change":
+			data = &KfAccountAuthChange{}
 		default:
 			return nil, fmt.Errorf("unknown message type: %s origData: %s", probeData.InfoType, origData)
 		}

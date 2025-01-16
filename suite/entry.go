@@ -172,6 +172,25 @@ type ProgramNotifyEvent struct {
 	NotifyScene  string
 }
 
+// =======客服===
+type KfAccountAuthChange struct {
+	ToUserName      string
+	FromUserName    string
+	CreateTime      int64
+	MsgType         string
+	AuthAddOpenKfId string
+	AuthDelOpenKfId string
+}
+
+type KfMsgOrEvent struct {
+	ToUserName string
+	CreateTime int64
+	MsgType    string
+	Event      string
+	Token      string
+	OpenKfId   string
+}
+
 //======= 客户事件 =======
 
 type RecvChangeExternalEvent struct {
