@@ -15,6 +15,7 @@ const (
 	listSimpleUserURI  = "https://qyapi.weixin.qq.com/cgi-bin/user/simplelist"
 	listUserURI        = "https://qyapi.weixin.qq.com/cgi-bin/user/list"
 	inviteUserURI      = "https://qyapi.weixin.qq.com/cgi-bin/invite/send"
+	listMemberAuthURI  = "https://qyapi.weixin.qq.com/cgi-bin/user/list_member_auth"
 )
 
 // UserAttribute struct 为用户扩展信息
@@ -252,4 +253,35 @@ func (a *API) InviteUser(userID, inviteTips string) (inviteType int, err error) 
 	}
 
 	return result.Type, nil
+}
+
+func (a *API) ListMemberAuth(cursor string, limit int) (result *ListMemberAuthRes, err error) {
+	token, err := a.Tokener.Token()
+	if err != nil {
+		return
+	}
+	qs := make(url.Values)
+	qs.Add("access_token", token)
+	url := listMemberAuthURI + "?" + qs.Encode()
+	data, _ := json.Marshal(map[string]any{
+		"cursor": cursor,
+		"limit":  limit,
+	})
+	body, err := a.Client.PostJSON(url, data)
+	if err != nil {
+		return
+	}
+	if err = json.Unmarshal(body, result); err != nil {
+		return
+	}
+	return result, nil
+}
+
+type ListMemberAuthRes struct {
+	Errcode        int64  `json:"errcode"`
+	Errmsg         string `json:"errmsg"`
+	NextCursor     string `json:"next_cursor"`
+	MemberAuthList []struct {
+		OpenUserid string `json:"open_userid"`
+	} `json:"member_auth_list"`
 }
