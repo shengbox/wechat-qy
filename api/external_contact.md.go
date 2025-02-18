@@ -6,12 +6,16 @@ type BaseResp struct {
 }
 
 type ExternalContact struct {
-	Avatar         string `json:"avatar"`
-	ExternalUserid string `json:"external_userid"`
-	Gender         int    `json:"gender"`
-	Name           string `json:"name"`
-	Type           int    `json:"type"`
-	Unionid        string `json:"unionid"`
+	Avatar          string         `json:"avatar"`
+	ExternalUserid  string         `json:"external_userid"`
+	Gender          int            `json:"gender"`
+	Name            string         `json:"name"`
+	Type            int            `json:"type"`
+	Unionid         string         `json:"unionid"`
+	Position        string         `json:"position"`
+	CorpName        string         `json:"corp_name"`
+	CorpFullName    string         `json:"corp_full_name"`
+	ExternalProfile map[string]any `json:"external_profile"`
 }
 
 type FollowUser struct {
