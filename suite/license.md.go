@@ -113,3 +113,13 @@ type TransferResult struct {
 	TakeoverUserid string `json:"takeover_userid"`
 	Errcode        int64  `json:"errcode"`
 }
+
+type AppLicenseInfoResp struct {
+	BaseResp      `json:",inline"`
+	LicenseStatus int64 `json:"license_status"`
+	TrailInfo     struct {
+		StartTime int64 `json:"start_time"`
+		EndTime   int64 `json:"end_time"`
+	} `json:"trail_info"`
+	LicenseCheckTime int64 `json:"license_check_time"`
+}

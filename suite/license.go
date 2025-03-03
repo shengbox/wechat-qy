@@ -15,6 +15,7 @@ const (
 	listOrderAccountURI    = "https://qyapi.weixin.qq.com/cgi-bin/license/list_order_account"      // 获取订单中的账号列表
 	getActiveInfoByCodeURI = "https://qyapi.weixin.qq.com/cgi-bin/license/get_active_info_by_code" // 获取激活码详情
 	transferLicenseURI     = "https://qyapi.weixin.qq.com/cgi-bin/license/batch_transfer_license"  // 账号继承
+	getAppLicenseInfoURI   = "https://qyapi.weixin.qq.com/cgi-bin/license/get_app_license_info"    // 账号继承
 )
 
 // 获取订单列表
@@ -172,4 +173,28 @@ func (s *Suite) TransferLicense(corpID, handoverUserid, takeoverUserid string) (
 		return nil, errors.New(result.Errmsg)
 	}
 	return &result.TransferResult, err
+}
+
+func (s *Suite) GetAppLicenseInfo(suiteID, corpID string) (*AppLicenseInfoResp, error) {
+	token, err := s.tokener.Token()
+	if err != nil {
+		return nil, err
+	}
+	qs := url.Values{}
+	qs.Add("provider_access_token", token)
+	uri := getAppLicenseInfoURI + "?" + qs.Encode()
+	buf, _ := json.Marshal(map[string]any{
+		"corpid":   corpID,
+		"suite_id": suiteID,
+	})
+	body, err := s.client.PostJSON(uri, buf)
+	if err != nil {
+		return nil, err
+	}
+	result := AppLicenseInfoResp{}
+	err = json.Unmarshal(body, &result)
+	if result.Errcode > 0 {
+		return nil, errors.New(result.Errmsg)
+	}
+	return &result, err
 }
