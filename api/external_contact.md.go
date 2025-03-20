@@ -331,10 +331,11 @@ type Image struct {
 }
 
 type Link struct {
-	Title  string `json:"title"`
-	Picurl string `json:"picurl"`
-	Desc   string `json:"desc"`
-	URL    string `json:"url"`
+	Title   string `json:"title"`
+	Picurl  string `json:"picurl"`
+	Desc    string `json:"desc"`
+	URL     string `json:"url"`
+	MediaID string `json:"media_id,omitempty"`
 }
 
 type Miniprogram struct {
