@@ -27,9 +27,11 @@ func (s *Suite) ListOrder(corpId string) (*OrderListRes, error) {
 	qs := url.Values{}
 	qs.Add("provider_access_token", token)
 	uri := listOrderURI + "?" + qs.Encode()
-	buf, _ := json.Marshal(map[string]any{
-		"corpid": corpId,
-	})
+	params := map[string]any{}
+	if corpId != "" {
+		params["corpid"] = corpId
+	}
+	buf, _ := json.Marshal(params)
 	body, err := s.client.PostJSON(uri, buf)
 	if err != nil {
 		return nil, err
