@@ -30,6 +30,7 @@ type FollowUser struct {
 	RemarkMobiles  []string `json:"remark_mobiles"`
 	Tags           []Tag    `json:"tags"`
 	Userid         string   `json:"userid"`
+	Username       string   `json:"username"`
 }
 type Tag struct {
 	GroupName string `json:"group_name,omitempty"`

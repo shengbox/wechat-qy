@@ -123,3 +123,61 @@ type AppLicenseInfoResp struct {
 	} `json:"trail_info"`
 	LicenseCheckTime int64 `json:"license_check_time"`
 }
+
+type GetAuthInfoRes struct {
+	AuthCorpInfo AuthCorpInfo `json:"auth_corp_info"`
+	AuthInfo     struct {
+		Agent []AuthInfoAgent `json:"agent"`
+	} `json:"auth_info"`
+	EditionInfo EditionInfo `json:"edition_info"`
+}
+
+type AuthCorpInfo struct {
+	Corpid            string `json:"corpid"`
+	CorpName          string `json:"corp_name"`
+	CorpType          string `json:"corp_type"`
+	CorpRoundLogoURL  string `json:"corp_round_logo_url"`
+	CorpSquareLogoURL string `json:"corp_square_logo_url"`
+	CorpUserMax       int64  `json:"corp_user_max"`
+	CorpWxqrcode      string `json:"corp_wxqrcode"`
+	CorpFullName      string `json:"corp_full_name"`
+	SubjectType       int64  `json:"subject_type"`
+	VerifiedEndTime   int64  `json:"verified_end_time"`
+	CorpScale         string `json:"corp_scale"`
+	CorpIndustry      string `json:"corp_industry"`
+	CorpSubIndustry   string `json:"corp_sub_industry"`
+	Location          string `json:"location"`
+}
+
+type AuthInfoAgent struct {
+	Agentid         int64     `json:"agentid"`
+	Name            string    `json:"name"`
+	SquareLogoURL   string    `json:"square_logo_url"`
+	Privilege       Privilege `json:"privilege"`
+	AuthMode        int64     `json:"auth_mode"`
+	IsCustomizedApp bool      `json:"is_customized_app"`
+}
+
+type Privilege struct {
+	Level      int64         `json:"level"`
+	AllowParty []int64       `json:"allow_party"`
+	AllowUser  []string      `json:"allow_user"`
+	AllowTag   []interface{} `json:"allow_tag"`
+	ExtraParty []interface{} `json:"extra_party"`
+	ExtraUser  []interface{} `json:"extra_user"`
+	ExtraTag   []interface{} `json:"extra_tag"`
+}
+
+type EditionInfo struct {
+	Agent []EditionInfoAgent `json:"agent"`
+}
+
+type EditionInfoAgent struct {
+	Agentid          int64  `json:"agentid"`
+	EditionID        string `json:"edition_id"`
+	EditionName      string `json:"edition_name"`
+	AppStatus        int64  `json:"app_status"`
+	UserLimit        int64  `json:"user_limit"`
+	ExpiredTime      int64  `json:"expired_time"`
+	IsVirtualVersion bool   `json:"is_virtual_version"`
+}

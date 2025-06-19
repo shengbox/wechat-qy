@@ -16,6 +16,7 @@ const (
 	getActiveInfoByCodeURI = "https://qyapi.weixin.qq.com/cgi-bin/license/get_active_info_by_code" // 获取激活码详情
 	transferLicenseURI     = "https://qyapi.weixin.qq.com/cgi-bin/license/batch_transfer_license"  // 账号继承
 	getAppLicenseInfoURI   = "https://qyapi.weixin.qq.com/cgi-bin/license/get_app_license_info"    // 账号继承
+	getAuthInfoURI         = "https://qyapi.weixin.qq.com/cgi-bin/service/get_auth_info"           // 获取企业授权信息
 )
 
 // 获取订单列表
@@ -197,6 +198,30 @@ func (s *Suite) GetAppLicenseInfo(suiteID, corpID string) (*AppLicenseInfoResp, 
 	err = json.Unmarshal(body, &result)
 	if result.Errcode > 0 {
 		return nil, errors.New(result.Errmsg)
+	}
+	return &result, err
+}
+
+func (s *Suite) GetAuthInfo(corpID, permanentCode string) (*GetAuthInfoRes, error) {
+	token, err := s.tokener.Token()
+	if err != nil {
+		return nil, err
+	}
+	qs := url.Values{}
+	qs.Add("suite_access_token", token)
+	uri := getAuthInfoURI + "?" + qs.Encode()
+	buf, _ := json.Marshal(map[string]any{
+		"auth_corpid":    corpID,
+		"permanent_code": permanentCode,
+	})
+	body, err := s.client.PostJSON(uri, buf)
+	if err != nil {
+		return nil, err
+	}
+	result := GetAuthInfoRes{}
+	err = json.Unmarshal(body, &result)
+	if err != nil {
+		return nil, err
 	}
 	return &result, err
 }
