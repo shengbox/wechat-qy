@@ -514,3 +514,26 @@ type GetMomentTaskResultResp struct {
 		MomentID string `json:"moment_id"`
 	} `json:"result"`
 }
+
+type RuleListRes struct {
+	BaseResp `json:",inline"`
+	RuleList []RuleList `json:"rule_list"`
+}
+type RuleList struct {
+	RuleID     string `json:"rule_id"`
+	RuleName   string `json:"rule_name"`
+	CreateTime int64  `json:"create_time"`
+}
+
+type InterceptRule struct {
+	RuleName        string          `json:"rule_name"`
+	WordList        []string        `json:"word_list"`
+	SemanticsList   []int64         `json:"semantics_list"`
+	InterceptType   int64           `json:"intercept_type"`
+	ApplicableRange ApplicableRange `json:"applicable_range"`
+}
+
+type ApplicableRange struct {
+	UserList       []string `json:"user_list"`
+	DepartmentList []int64  `json:"department_list"`
+}
