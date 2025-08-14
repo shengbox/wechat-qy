@@ -28,9 +28,10 @@ const (
 	getGroupmsgSendResultURI = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get_groupmsg_send_result" // 群发结果
 	getGroupmsgTask          = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get_groupmsg_task"        // 获取群发成员发送任务列表
 
-	listContactWayURI = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/list_contact_way"
-	getContactWayURI  = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get_contact_way"
-	delContactWayURI  = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/del_contact_way"
+	listContactWayURI   = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/list_contact_way"
+	getContactWayURI    = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get_contact_way"
+	delContactWayURI    = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/del_contact_way"
+	updateContactWayURI = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/update_contact_way"
 
 	createLinkURI          = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/customer_acquisition/create_link" // 创建获客链接
 	addMomentTaskURI       = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/add_moment_task"                  // 创建发表任务
@@ -123,6 +124,34 @@ func (a *API) AddContactWay(way *AddContactWayReq) (*AddContactWayResp, error) {
 	qs.Add("access_token", token)
 	apiUrl := addContactWayURI + "?" + qs.Encode()
 	data, err := json.Marshal(way)
+	if err != nil {
+		return nil, err
+	}
+	body, err := a.Client.PostJSON(apiUrl, data)
+	if err != nil {
+		return nil, err
+	}
+	result := &AddContactWayResp{}
+	err = json.Unmarshal(body, result)
+	return result, err
+}
+
+// UpdateContactWay 配置客户联系「联系我」方式
+func (a *API) UpdateContactWay(configID string, way *AddContactWayReq) (*AddContactWayResp, error) {
+	token, err := a.Tokener.Token()
+	if err != nil {
+		return nil, err
+	}
+	qs := make(url.Values)
+	qs.Add("access_token", token)
+	apiUrl := updateContactWayURI + "?" + qs.Encode()
+
+	req := struct {
+		*AddContactWayReq `json:",inline"`
+		ConfigID          string `json:"config_id"`
+	}{ConfigID: configID, AddContactWayReq: way}
+
+	data, err := json.Marshal(req)
 	if err != nil {
 		return nil, err
 	}
