@@ -36,6 +36,8 @@ const (
 	createLinkURI          = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/customer_acquisition/create_link" // 创建获客链接
 	addMomentTaskURI       = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/add_moment_task"                  // 创建发表任务
 	getMomentTaskResultURI = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get_moment_task_result"           // 获取任务创建结果
+
+	getMomentCommentsURI = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/get_moment_comments" // 获取客户朋友圈的互动数据
 )
 
 // GetExternalContact 获取客户详情
@@ -632,6 +634,31 @@ func (a *API) GetGroupmsgSendResult(req *GroupmsgSendResultReq) (*GroupmsgSendRe
 		return nil, err
 	}
 	var result GroupmsgSendResultResp
+	err = json.Unmarshal(body, &result)
+	return &result, err
+}
+
+// 获取客户朋友圈的互动数据
+func (a *API) GetMomentComments(momentId, userid string) (*MomentCommentsRes, error) {
+	token, err := a.Tokener.Token()
+	if err != nil {
+		return nil, err
+	}
+	qs := make(url.Values)
+	qs.Add("access_token", token)
+	apiUrl := getMomentCommentsURI + "?" + qs.Encode()
+	data, err := json.Marshal(map[string]any{
+		"moment_id": momentId,
+		"userid":    userid,
+	})
+	if err != nil {
+		return nil, err
+	}
+	body, err := a.Client.PostJSON(apiUrl, data)
+	if err != nil {
+		return nil, err
+	}
+	var result MomentCommentsRes
 	err = json.Unmarshal(body, &result)
 	return &result, err
 }

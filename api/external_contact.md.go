@@ -537,3 +537,14 @@ type ApplicableRange struct {
 	UserList       []string `json:"user_list"`
 	DepartmentList []int64  `json:"department_list"`
 }
+type MomentCommentsRes struct {
+	BaseResp    `json:",inline"`
+	CommentList []List `json:"comment_list"`
+	LikeList    []List `json:"like_list"`
+}
+
+type List struct {
+	ExternalUserid *string `json:"external_userid,omitempty"`
+	CreateTime     int64   `json:"create_time"`
+	Userid         *string `json:"userid,omitempty"`
+}
