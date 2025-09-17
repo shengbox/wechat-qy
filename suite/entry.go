@@ -257,6 +257,14 @@ type LicensePaySuccess struct {
 	TimeStamp     string `xml:"TimeStamp"`
 }
 
+type PayForAppSuccess struct {
+	SuiteId    string `xml:"SuiteId"`
+	PaidCorpId string `xml:"PaidCorpId"`
+	InfoType   string `xml:"InfoType"`
+	TimeStamp  int64  `xml:"TimeStamp"`
+	OrderId    string `xml:"OrderId"`
+}
+
 type SysApprovalChangeEvent struct {
 	ToUserName   string //ww84332616507d83b8
 	FromUserName string //sys

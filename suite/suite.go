@@ -162,6 +162,8 @@ func (s *Suite) Parse(body []byte, signature, timestamp, nonce string) (interfac
 		data = &RecvAutoActivateEvent{}
 	case "license_pay_success":
 		data = &LicensePaySuccess{}
+	case "pay_for_app_success":
+		data = &PayForAppSuccess{}
 	default:
 		switch probeData.Event {
 		case "change_app_admin", "subscribe", "enter_agent", "unsubscribe":
