@@ -180,6 +180,8 @@ func (s *Suite) Parse(body []byte, signature, timestamp, nonce string) (interfac
 			data = &KfMsgOrEvent{}
 		case "kf_account_auth_change":
 			data = &KfAccountAuthChange{}
+		case "change_external_chat":
+			data = &RecvChangeExternalChatEvent{}
 		default:
 			return nil, fmt.Errorf("unknown message type: %s origData: %s", probeData.InfoType, origData)
 		}
