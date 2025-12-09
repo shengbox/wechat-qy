@@ -1,6 +1,10 @@
 package suite
 
-import "github.com/shengbox/wechat-qy/base"
+import (
+	"encoding/xml"
+
+	"github.com/shengbox/wechat-qy/base"
+)
 
 type BaseResp struct {
 	Errcode int64  `json:"errcode"`
@@ -432,4 +436,30 @@ type JobResult struct {
 			URL string `json:"url"`
 		} `json:"contact_id_translate"`
 	} `json:"result"`
+}
+
+type ChangeContactEvent struct {
+	XMLName    xml.Name `xml:"xml"`
+	Text       string   `xml:",chardata"`
+	ToUserName struct {
+		Text string `xml:",chardata"`
+	} `xml:"ToUserName"`
+	FromUserName struct {
+		Text string `xml:",chardata"`
+	} `xml:"FromUserName"`
+	CreateTime struct {
+		Text string `xml:",chardata"`
+	} `xml:"CreateTime"`
+	MsgType struct {
+		Text string `xml:",chardata"`
+	} `xml:"MsgType"`
+	Event struct {
+		Text string `xml:",chardata"`
+	} `xml:"Event"`
+	ChangeType struct {
+		Text string `xml:",chardata"`
+	} `xml:"ChangeType"`
+	UserID struct {
+		Text string `xml:",chardata"`
+	} `xml:"UserID"`
 }
