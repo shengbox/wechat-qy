@@ -2,8 +2,6 @@ package api
 
 import (
 	"errors"
-
-	"github.com/shengbox/wechat-qy/base"
 )
 
 const (
@@ -82,73 +80,59 @@ type Property struct {
 }
 
 func (a *API) Copytemplate(openTemplateId string) (string, error) {
-	token, err := a.Tokener.Token()
-	if err != nil {
-		return "", err
-	}
 	result := &struct {
 		BaseResp   `json:",inline"`
 		TemplateId string `json:"template_id"`
 	}{}
-	_, err = a.restyClient.R().SetResult(result).SetQueryParam("access_token", token).SetBody(map[string]string{
+	body := map[string]string{
 		"open_template_id": openTemplateId,
-	}).Post(copytemplateURI)
+	}
+	err := a.PostJSON(copytemplateURI, nil, body, result)
 	if err != nil {
 		return "", err
 	}
 	if result.Errcode > 0 {
 		return "", errors.New(result.Errmsg)
 	}
-	return result.TemplateId, err
+	return result.TemplateId, nil
 }
 
 // 获取模板详情
 func (a *API) GetTemplateDetail(templateId string) (*TemplateDetailObj, error) {
-	token, err := a.Tokener.Token()
-	if err != nil {
-		return nil, err
+	result := &TemplateDetailObj{}
+	body := map[string]string{
+		"template_id": templateId,
 	}
-	var result TemplateDetailObj
-	resp, err := a.restyClient.R().
-		SetQueryParam("access_token", token).
-		SetBody(map[string]string{"template_id": templateId}).
-		SetResult(&result).Post(gettemplatedetailURI)
-	base.GetLogger().Println(resp.String(), err)
-	return &result, err
+	err := a.PostJSON(gettemplatedetailURI, nil, body, result)
+	return result, err
 }
 
 // 提交申请
 func (a *API) Applyevent(body ApplyObj) (string, error) {
-	token, err := a.Tokener.Token()
-	if err != nil {
-		return "", err
-	}
 	result := &struct {
 		BaseResp `json:",inline"`
 		SpNO     string `json:"sp_no"`
 	}{}
-	resp, err := a.restyClient.R().SetQueryParam("access_token", token).SetBody(body).SetResult(&result).Post(applyeventURI)
-	base.GetLogger().Println(resp.String(), err)
+	err := a.PostJSON(applyeventURI, nil, body, result)
 	if err != nil {
 		return "", err
 	}
 	if result.Errcode > 0 {
 		return "", errors.New(result.Errmsg)
 	}
-	return result.SpNO, err
+	return result.SpNO, nil
 }
 
 func (a *API) GetApprovalInfo(body ApprovalReq) ([]string, error) {
-	token, err := a.Tokener.Token()
-	if err != nil {
-		return nil, err
-	}
 	result := &struct {
 		BaseResp `json:",inline"`
 		SpNOList []string `json:"sp_no_list"`
 	}{}
-	_, _ = a.restyClient.R().SetResult(&result).SetQueryParam("access_token", token).SetBody(body).Post(getapprovalinfoURI)
-	return result.SpNOList, err
+	err := a.PostJSON(getapprovalinfoURI, nil, body, result)
+	if err != nil {
+		return nil, err
+	}
+	return result.SpNOList, nil
 }
 
 type ApprovalReq struct {
@@ -165,14 +149,10 @@ type Filter struct {
 }
 
 func (a *API) GetApprovalDetail(spNO string) (*map[string]interface{}, error) {
-	token, err := a.Tokener.Token()
-	if err != nil {
-		return nil, err
+	result := &map[string]interface{}{}
+	body := map[string]string{
+		"sp_no": spNO,
 	}
-	var result map[string]interface{}
-	_, _ = a.restyClient.R().SetResult(&result).
-		SetQueryParam("access_token", token).
-		SetBody(map[string]string{"sp_no": spNO}).
-		Post(getapprovaldetailURI)
-	return &result, err
+	err := a.PostJSON(getapprovaldetailURI, nil, body, result)
+	return result, err
 }

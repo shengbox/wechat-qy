@@ -1,7 +1,6 @@
 package api
 
 import (
-	"encoding/json"
 	"net/url"
 	"strconv"
 )
@@ -47,235 +46,98 @@ type User struct {
 
 // CreateUser 方法用于创建用户
 func (a *API) CreateUser(user *User) error {
-	token, err := a.Tokener.Token()
-	if err != nil {
-		return err
-	}
-
-	qs := make(url.Values)
-	qs.Add("access_token", token)
-
-	url := createUserURI + "?" + qs.Encode()
-	data, err := json.Marshal(user)
-	if err != nil {
-		return err
-	}
-
-	_, err = a.Client.PostJSON(url, data)
-	return err
+	return a.PostJSON(createUserURI, nil, user, nil)
 }
 
 // UpdateUser 方法用于更新用户信息
 func (a *API) UpdateUser(user *User) error {
-	token, err := a.Tokener.Token()
-	if err != nil {
-		return err
-	}
-
-	qs := make(url.Values)
-	qs.Add("access_token", token)
-
-	url := updateUserURI + "?" + qs.Encode()
-	data, err := json.Marshal(user)
-	if err != nil {
-		return err
-	}
-
-	_, err = a.Client.PostJSON(url, data)
-	return err
+	return a.PostJSON(updateUserURI, nil, user, nil)
 }
 
 // DeleteUser 方法用于删除某个用户
 func (a *API) DeleteUser(userID string) error {
-	token, err := a.Tokener.Token()
-	if err != nil {
-		return err
-	}
-
 	qs := make(url.Values)
-	qs.Add("access_token", token)
 	qs.Add("userid", userID)
-
-	url := deleteUserURI + "?" + qs.Encode()
-
-	_, err = a.Client.GetJSON(url)
-	return err
+	return a.GetJSON(deleteUserURI, qs, nil)
 }
 
 // BatchDeleteUser 方法用于批量删除用户
 func (a *API) BatchDeleteUser(userIds []string) error {
-	token, err := a.Tokener.Token()
-	if err != nil {
-		return err
-	}
-
-	qs := make(url.Values)
-	qs.Add("access_token", token)
-
-	url := batchDeleteUserURI + "?" + qs.Encode()
-
-	data, err := json.Marshal(map[string][]string{
+	body := map[string][]string{
 		"useridlist": userIds,
-	})
-	if err != nil {
-		return err
 	}
-
-	_, err = a.Client.PostJSON(url, data)
-	return err
+	return a.PostJSON(batchDeleteUserURI, nil, body, nil)
 }
 
 // GetUser 方法用于获取某个用户的信息
 func (a *API) GetUser(userID string) (*User, error) {
-	token, err := a.Tokener.Token()
-	if err != nil {
-		return nil, err
-	}
-
 	qs := make(url.Values)
-	qs.Add("access_token", token)
 	qs.Add("userid", userID)
-
-	url := getUserURI + "?" + qs.Encode()
-
-	body, err := a.Client.GetJSON(url)
-	if err != nil {
-		return nil, err
-	}
-
 	user := &User{}
-	err = json.Unmarshal(body, user)
-
+	err := a.GetJSON(getUserURI, qs, user)
 	return user, err
 }
 
 // ListSimpleUser 方法用于获取部门成员列表（成员仅有简单信息）
 func (a *API) ListSimpleUser(departmentID int64, fetchChild *int, status *int) ([]*User, error) {
-	token, err := a.Tokener.Token()
-	if err != nil {
-		return nil, err
-	}
-
 	qs := make(url.Values)
-	qs.Add("access_token", token)
 	qs.Add("department_id", strconv.FormatInt(departmentID, 10))
-
 	if fetchChild != nil {
 		qs.Add("fetch_child", strconv.Itoa(*fetchChild))
 	}
-
 	if status != nil {
 		qs.Add("status", strconv.Itoa(*status))
-	}
-
-	url := listSimpleUserURI + "?" + qs.Encode()
-
-	body, err := a.Client.GetJSON(url)
-	if err != nil {
-		return nil, err
 	}
 
 	result := &struct {
 		UserList []*User `json:"userlist"`
 	}{}
-
-	if err := json.Unmarshal(body, result); err != nil {
-		return nil, err
-	}
-
-	return result.UserList, nil
+	err := a.GetJSON(listSimpleUserURI, qs, result)
+	return result.UserList, err
 }
 
 // ListUser 方法用于获取部门成员列表（成员带有详情信息）
 func (a *API) ListUser(departmentID int64, fetchChild *int, status *int) ([]*User, error) {
-	token, err := a.Tokener.Token()
-	if err != nil {
-		return nil, err
-	}
-
 	qs := make(url.Values)
-	qs.Add("access_token", token)
 	qs.Add("department_id", strconv.FormatInt(departmentID, 10))
-
 	if fetchChild != nil {
 		qs.Add("fetch_child", strconv.Itoa(*fetchChild))
 	}
-
 	if status != nil {
 		qs.Add("status", strconv.Itoa(*status))
-	}
-
-	url := listUserURI + "?" + qs.Encode()
-
-	body, err := a.Client.GetJSON(url)
-	if err != nil {
-		return nil, err
 	}
 
 	result := &struct {
 		UserList []*User `json:"userlist"`
 	}{}
-
-	if err := json.Unmarshal(body, result); err != nil {
-		return nil, err
-	}
-
-	return result.UserList, nil
+	err := a.GetJSON(listUserURI, qs, result)
+	return result.UserList, err
 }
 
 // InviteUser 方法用于邀请成员关注
 func (a *API) InviteUser(userID, inviteTips string) (inviteType int, err error) {
-	token, err := a.Tokener.Token()
-	if err != nil {
-		return
-	}
-
-	qs := make(url.Values)
-	qs.Add("access_token", token)
-
-	url := inviteUserURI + "?" + qs.Encode()
-	data, _ := json.Marshal(map[string]string{
+	body := map[string]string{
 		"userid":      userID,
 		"invite_tips": inviteTips,
-	})
-
-	body, err := a.Client.PostJSON(url, data)
-	if err != nil {
-		return
 	}
-
 	result := &struct {
 		Type int `json:"type"`
 	}{}
-
-	if err = json.Unmarshal(body, result); err != nil {
-		return
+	err = a.PostJSON(inviteUserURI, nil, body, result)
+	if err != nil {
+		return 0, err
 	}
-
 	return result.Type, nil
 }
 
 func (a *API) ListMemberAuth(cursor string, limit int) (result *ListMemberAuthRes, err error) {
-	token, err := a.Tokener.Token()
-	if err != nil {
-		return
-	}
-	qs := make(url.Values)
-	qs.Add("access_token", token)
-	url := listMemberAuthURI + "?" + qs.Encode()
-	data, _ := json.Marshal(map[string]any{
+	body := map[string]any{
 		"cursor": cursor,
 		"limit":  limit,
-	})
-	body, err := a.Client.PostJSON(url, data)
-	if err != nil {
-		return
 	}
 	result = &ListMemberAuthRes{}
-	if err = json.Unmarshal(body, result); err != nil {
-		return nil, err
-	}
-	return result, nil
+	err = a.PostJSON(listMemberAuthURI, nil, body, result)
+	return result, err
 }
 
 type ListMemberAuthRes struct {

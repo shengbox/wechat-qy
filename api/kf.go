@@ -1,11 +1,7 @@
 package api
 
 import (
-	"encoding/json"
 	"errors"
-	"net/url"
-
-	"github.com/shengbox/wechat-qy/base"
 )
 
 const (
@@ -64,30 +60,15 @@ type KfEvent struct {
 }
 
 func (a *API) SyncMsg(req SyncMsgReq) (*SyncMsgResp, error) {
-	token, err := a.Tokener.Token()
-	if err != nil {
-		return nil, err
-	}
-	qs := make(url.Values)
-	qs.Add("access_token", token)
-	apiUrl := syncMsgURI + "?" + qs.Encode()
-	data, err := json.Marshal(req)
-	if err != nil {
-		return nil, err
-	}
-	body, err := a.Client.PostJSON(apiUrl, data)
-	if err != nil {
-		return nil, err
-	}
 	result := &SyncMsgResp{}
-	err = json.Unmarshal(body, result)
+	err := a.PostJSON(syncMsgURI, nil, req, result)
 	if err != nil {
 		return nil, err
 	}
 	if result.Errcode != 0 {
 		return nil, errors.New(result.Errmsg)
 	}
-	return result, err
+	return result, nil
 }
 
 type SendReq struct {
@@ -104,30 +85,13 @@ type SendResp struct {
 }
 
 func (a *API) SendMsg(req SendReq) (*SendResp, error) {
-	token, err := a.Tokener.Token()
-	if err != nil {
-		return nil, err
-	}
-	qs := make(url.Values)
-	qs.Add("access_token", token)
-	apiUrl := sendMsgURI + "?" + qs.Encode()
-	data, err := json.Marshal(req)
-	if err != nil {
-		return nil, err
-	}
-	body, err := a.Client.PostJSON(apiUrl, data)
-	if err != nil {
-		return nil, err
-	}
-	base.GetLogger().Println(string(body))
 	result := &SendResp{}
-	err = json.Unmarshal(body, result)
+	err := a.PostJSON(sendMsgURI, nil, req, result)
 	if err != nil {
 		return nil, err
 	}
 	if result.Errcode != 0 {
 		return nil, errors.New(result.Errmsg)
 	}
-	return result, err
+	return result, nil
 }
-
