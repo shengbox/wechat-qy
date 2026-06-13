@@ -1,66 +1,118 @@
 # wechat-qy
-> 易于使用的微信企业号通用 SDK (Golang)
+> 易于使用的企业微信（原微信企业号）通用 SDK (Golang)
+
+[![Go Reference](https://pkg.go.dev/badge/github.com/shengbox/wechat-qy.svg)](https://pkg.go.dev/github.com/shengbox/wechat-qy)
+[![Go Report Card](https://goreportcard.com/badge/github.com/shengbox/wechat-qy)](https://goreportcard.com/report/github.com/shengbox/wechat-qy)
 
 ## 特性
 
-* 支持第三方应用提供商的应用套件相关接口
-* 企业号相关的所有 API 同时支持基于应用套件级别的调用和企业号单独调用
-* 支持企业号最新的异步任务 API
-* Access Token 自动管理和续期
-* 支持 Access Token 超期或失效导致接口调用错误时重新获取并自动重试一次当前调用的 API
-* 提供被动接收消息（事件）的解析方法，以及生成被动响应消息的方法
+* **高并发安全**：Token 管理机制内置读写锁与双重校验（Double-Checked Locking），原生支持高并发后端服务。
+* **第三方应用支持**：完整支持第三方应用套件接口，支持基于应用套件级别的调用和企业号单独调用。
+* **独立的服务商管理**：支持独立的 `provider_access_token` 获取与自动续期，完美支持 License 账号许可等服务商 API。
+* **连接复用与超时安全**：内置合理的 HTTP 超时控制，统一 Resty 连接池复用，杜绝 TCP 连接泄露（TIME_WAIT 堆积）。
+* **可插拔日志系统**：支持注入自定义结构化日志组件（如 Zap、Logrus、Slog 等）。
+* **Access Token 自动续期**：Token 超期或失效导致接口调用错误时，自动刷新并重试一次当前调用的 API。
+* **加解密支持**：提供被动接收消息（事件）的安全解密解析方法，以及生成被动响应消息的方法。
 
 ## 安装
+
 ```bash
 $ go get -u github.com/shengbox/wechat-qy
 ```
 
-*安利一下通用的微信开放平台加解密库：[github.com/heroicyang/wechat-crypter](https://github.com/heroicyang/wechat-crypter)*
+## 使用手册
 
-## 使用
+### 1. 企业自建应用开发（企业自用模式）
 
-### 应用套件级别（适用于第三方应用提供商）
+适用于企业自己开发内部应用：
+
 ```go
-import "github.com/heroicyang/wechat-qy/suite"
+package main
 
-wechatSuite := suite.New(suiteID, suiteSecret, suiteToken, suiteEncodingAESKey)
+import (
+	"fmt"
+	"time"
 
-// 解析应用套件的被动回调（ticket, change_auth, cancel_auth）
-wechatSuite.Parse(body, signature, timestamp, nonce)
+	"github.com/shengbox/wechat-qy/api"
+	"github.com/shengbox/wechat-qy/base"
+)
 
-// 设置应用套件的 ticket
-wechatSuite.SetTicket(ticket)
+func main() {
+	// 初始化 API 实例
+	wechatAPI := api.New("CORP_ID", "CORP_SECRET", "TOKEN", "ENCODING_AES_KEY")
 
-// 获取应用套件的引导授权地址
-wechatSuite.GetAuthURI(appIDs []int, redirectURI, state)
+	// [可选] 配置 HTTP 超时时间（默认 10 秒）
+	wechatAPI.Client.SetTimeout(5 * time.Second)
 
-// 获取企业号的永久授权码
-wechatSuite.GetPermanentCode(authCode)
+	// [可选] 配置自定义的全局日志（需实现 base.Logger 接口）
+	// base.SetLogger(myCustomLogger)
 
-// 创建基于应用套件的 API 调用实例
-api := wechatSuite.NewAPI(corpID, permanentCode)
+	// 创建用户
+	err := wechatAPI.CreateUser(&api.User{
+		UserID:        "zhangsan",
+		Name:          "张三",
+		DepartmentIds: []int64{1, 2},
+		Mobile:        "13800000000",
+	})
+	if err != nil {
+		fmt.Printf("创建用户失败: %v\n", err)
+	}
 
-// 基于应用套件调用相关 API 与下面企业号级别的 API 调用一致
+	// 创建被动消息解析器（用于处理回调事件）
+	recvMsgHandler := wechatAPI.NewRecvMsgHandler()
+	
+	// 解析回调模式接收的消息/事件
+	// data, err := recvMsgHandler.Parse(body, signature, timestamp, nonce)
+}
 ```
 
-### 企业号级别（适用于企业自己开发应用）
+### 2. 第三方应用开发（服务商模式）
+
+适用于为其他企业提供 SaaS 应用的第三方服务商：
+
 ```go
-import "github.com/heroicyang/wechat-qy/api"
+package main
 
-wechatAPI := api.New(corpID, corpSecret, token, encodingAESKey)
+import (
+	"fmt"
 
-// 创建被动消息解析器
-recvMsgHandler := wechatAPI.NewRecvMsgHandler()
-// 解析回调模式被动接收的消息（事件）
-recvMsgHandler.Parse(body, signature, timestamp, nonce)
-// 生成被动响应消息的加密消息体
-recvMsgHandler.Response(message []byte)
+	"github.com/shengbox/wechat-qy/suite"
+)
 
-// 其它 API 调用
-wechatAPI.UploadMedia(...)
-wechatAPI.PerformReplaceDepartmentTask(...)
-// ...
+func main() {
+	// 初始化 Suite 实例
+	wechatSuite := suite.New("SUITE_ID", "SUITE_SECRET", "SUITE_TOKEN", "SUITE_ENCODING_AES_KEY")
+
+	// [重要] 如果需要调用 License 账号许可、注册定制化等服务商 API，请设置服务商凭证信息
+	wechatSuite.SetProvider("PROVIDER_CORPID", "PROVIDER_SECRET")
+
+	// 获取企业的账号许可激活详情 (需要 provider_access_token)
+	info, err := wechatSuite.GetActiveInfoByUser("AUTH_CORPID", "USER_ID")
+	if err != nil {
+		fmt.Printf("获取许可详情失败: %v\n", err)
+	} else {
+		fmt.Printf("激活码: %s\n", info.ActiveCode)
+	}
+
+	// 获取企业号的永久授权码
+	authInfo, err := wechatSuite.GetPermanentCode("AUTH_CODE")
+
+	// 创建基于特定授权企业的 API 实例 (继承套件的 Token 管理机制)
+	apiInstance := wechatSuite.NewAPI("AUTH_CORPID", authInfo.PermanentCode)
+	
+	// 后续调用与自建应用 API 实例一致
+	// apiInstance.CreateUser(...)
+}
 ```
 
-## 文档
-[http://godoc.org/github.com/heroicyang/wechat-qy](http://godoc.org/github.com/heroicyang/wechat-qy)
+## 贡献与开发
+
+### 运行单元测试
+项目已针对高并发 Token 刷新、加解密安全性、接口反序列化崩溃等核心场景编写了完整的单元测试，可以使用 Race 检测器运行：
+
+```bash
+$ go test -race -v ./...
+```
+
+## License
+MIT
