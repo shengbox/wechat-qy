@@ -1,6 +1,9 @@
 package base
 
-import "time"
+import (
+	"sync"
+	"time"
+)
 
 // TokenFetcher 包含向 API 服务器获取令牌信息的操作
 type TokenFetcher interface {
@@ -9,6 +12,7 @@ type TokenFetcher interface {
 
 // Tokener 用于管理应用套件或企业号的令牌信息
 type Tokener struct {
+	mu           sync.RWMutex
 	token        string
 	expiresIn    int64
 	tokenFetcher TokenFetcher
@@ -21,10 +25,24 @@ func NewTokener(tokenFetcher TokenFetcher) *Tokener {
 
 // Token 方法用于获取应用套件令牌
 func (t *Tokener) Token() (token string, err error) {
-	if !t.isValidToken() {
-		if err = t.RefreshToken(); err != nil {
-			return "", err
-		}
+	t.mu.RLock()
+	if t.isValidToken() {
+		tok := t.token
+		t.mu.RUnlock()
+		return tok, nil
+	}
+	t.mu.RUnlock()
+
+	t.mu.Lock()
+	defer t.mu.Unlock()
+
+	// Double-check after acquiring write lock
+	if t.isValidToken() {
+		return t.token, nil
+	}
+
+	if err = t.refreshTokenLocked(); err != nil {
+		return "", err
 	}
 
 	return t.token, nil
@@ -32,6 +50,12 @@ func (t *Tokener) Token() (token string, err error) {
 
 // RefreshToken 方法用于刷新令牌信息
 func (t *Tokener) RefreshToken() error {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	return t.refreshTokenLocked()
+}
+
+func (t *Tokener) refreshTokenLocked() error {
 	token, expiresIn, err := t.tokenFetcher.FetchToken()
 	if err != nil {
 		return err
@@ -59,3 +83,4 @@ type Ticket struct {
 	Ticket    string `json:"ticket"`
 	ExpiresIn int64  `json:"expires_in"`
 }
+

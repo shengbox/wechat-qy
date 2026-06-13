@@ -3,8 +3,9 @@ package api
 import (
 	"encoding/json"
 	"errors"
-	"log"
 	"net/url"
+
+	"github.com/shengbox/wechat-qy/base"
 )
 
 const (
@@ -118,7 +119,7 @@ func (a *API) SendMsg(req SendReq) (*SendResp, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Println(string(body))
+	base.GetLogger().Println(string(body))
 	result := &SendResp{}
 	err = json.Unmarshal(body, result)
 	if err != nil {
@@ -129,3 +130,4 @@ func (a *API) SendMsg(req SendReq) (*SendResp, error) {
 	}
 	return result, err
 }
+

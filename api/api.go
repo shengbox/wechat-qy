@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/url"
 
+	"github.com/go-resty/resty/v2"
 	"github.com/heroicyang/wechat-crypter"
 	"github.com/shengbox/wechat-qy/base"
 )
@@ -14,11 +15,12 @@ const (
 
 // API 封装了企业号相关的接口操作
 type API struct {
-	corpSecret string
-	CorpID     string
-	MsgCrypter crypter.MessageCrypter
-	Client     *base.Client
-	Tokener    *base.Tokener
+	corpSecret  string
+	CorpID      string
+	MsgCrypter  crypter.MessageCrypter
+	Client      *base.Client
+	Tokener     *base.Tokener
+	restyClient *resty.Client
 }
 
 // New 方法创建 API 实例
@@ -26,9 +28,10 @@ func New(corpID, corpSecret, token, encodingAESKey string) *API {
 	msgCrypter, _ := crypter.NewMessageCrypter(token, encodingAESKey, corpID)
 
 	api := &API{
-		corpSecret: corpSecret,
-		CorpID:     corpID,
-		MsgCrypter: msgCrypter,
+		corpSecret:  corpSecret,
+		CorpID:      corpID,
+		MsgCrypter:  msgCrypter,
+		restyClient: resty.New(),
 	}
 
 	api.Client = base.NewClient(api)
@@ -36,6 +39,7 @@ func New(corpID, corpSecret, token, encodingAESKey string) *API {
 
 	return api
 }
+
 
 // Retriable 方法实现了 API 在发起请求遇到 token 错误时，先刷新 token 然后再次发起请求的逻辑
 func (a *API) Retriable(reqURL string, body []byte) (bool, string, error) {

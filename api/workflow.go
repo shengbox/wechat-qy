@@ -2,9 +2,8 @@ package api
 
 import (
 	"errors"
-	"log"
 
-	"github.com/go-resty/resty/v2"
+	"github.com/shengbox/wechat-qy/base"
 )
 
 const (
@@ -91,7 +90,7 @@ func (a *API) Copytemplate(openTemplateId string) (string, error) {
 		BaseResp   `json:",inline"`
 		TemplateId string `json:"template_id"`
 	}{}
-	_, err = resty.New().R().SetResult(result).SetQueryParam("access_token", token).SetBody(map[string]string{
+	_, err = a.restyClient.R().SetResult(result).SetQueryParam("access_token", token).SetBody(map[string]string{
 		"open_template_id": openTemplateId,
 	}).Post(copytemplateURI)
 	if err != nil {
@@ -110,11 +109,11 @@ func (a *API) GetTemplateDetail(templateId string) (*TemplateDetailObj, error) {
 		return nil, err
 	}
 	var result TemplateDetailObj
-	resp, err := resty.New().R().
+	resp, err := a.restyClient.R().
 		SetQueryParam("access_token", token).
 		SetBody(map[string]string{"template_id": templateId}).
 		SetResult(&result).Post(gettemplatedetailURI)
-	log.Println(resp.String(), err)
+	base.GetLogger().Println(resp.String(), err)
 	return &result, err
 }
 
@@ -128,8 +127,8 @@ func (a *API) Applyevent(body ApplyObj) (string, error) {
 		BaseResp `json:",inline"`
 		SpNO     string `json:"sp_no"`
 	}{}
-	resp, err := resty.New().R().SetQueryParam("access_token", token).SetBody(body).SetResult(&result).Post(applyeventURI)
-	log.Println(resp.String(), err)
+	resp, err := a.restyClient.R().SetQueryParam("access_token", token).SetBody(body).SetResult(&result).Post(applyeventURI)
+	base.GetLogger().Println(resp.String(), err)
 	if err != nil {
 		return "", err
 	}
@@ -148,7 +147,7 @@ func (a *API) GetApprovalInfo(body ApprovalReq) ([]string, error) {
 		BaseResp `json:",inline"`
 		SpNOList []string `json:"sp_no_list"`
 	}{}
-	_, _ = resty.New().R().SetResult(&result).SetQueryParam("access_token", token).SetBody(body).Post(getapprovalinfoURI)
+	_, _ = a.restyClient.R().SetResult(&result).SetQueryParam("access_token", token).SetBody(body).Post(getapprovalinfoURI)
 	return result.SpNOList, err
 }
 
@@ -171,7 +170,7 @@ func (a *API) GetApprovalDetail(spNO string) (*map[string]interface{}, error) {
 		return nil, err
 	}
 	var result map[string]interface{}
-	_, _ = resty.New().R().SetResult(&result).
+	_, _ = a.restyClient.R().SetResult(&result).
 		SetQueryParam("access_token", token).
 		SetBody(map[string]string{"sp_no": spNO}).
 		Post(getapprovaldetailURI)

@@ -271,8 +271,9 @@ func (a *API) ListMemberAuth(cursor string, limit int) (result *ListMemberAuthRe
 	if err != nil {
 		return
 	}
+	result = &ListMemberAuthRes{}
 	if err = json.Unmarshal(body, result); err != nil {
-		return
+		return nil, err
 	}
 	return result, nil
 }

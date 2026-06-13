@@ -7,6 +7,7 @@ import (
 	"mime"
 	"mime/multipart"
 	"net/http"
+	"time"
 )
 
 // Retrier 是带有重试机制 api 需要实现的接口
@@ -22,8 +23,31 @@ type Client struct {
 
 // NewClient 方法用于创建 Client 实例
 func NewClient(api interface{}) *Client {
-	return &Client{http.DefaultClient, api}
+	return &Client{
+		httpClient: &http.Client{
+			Timeout: 10 * time.Second,
+		},
+		api: api,
+	}
 }
+
+// SetHTTPClient 允许用户设置自定义的 http.Client
+func (c *Client) SetHTTPClient(client *http.Client) {
+	if client != nil {
+		c.httpClient = client
+	}
+}
+
+// SetTimeout 允许用户设置自定义的超时时间
+func (c *Client) SetTimeout(d time.Duration) {
+	c.httpClient.Timeout = d
+}
+
+// GetHTTPClient 返回当前的 http.Client
+func (c *Client) GetHTTPClient() *http.Client {
+	return c.httpClient
+}
+
 
 // GetJSON 方法用于发起 JSON GET 请求
 func (c *Client) GetJSON(url string) ([]byte, error) {

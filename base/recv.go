@@ -1,11 +1,13 @@
 package base
 
 import (
+	"crypto/rand"
 	"encoding/xml"
 	"fmt"
-	"math/rand"
+	"math/big"
 	"time"
 )
+
 
 // CDATAText 用于在 xml 解析时避免转义
 type CDATAText struct {
@@ -35,9 +37,14 @@ func StringToCDATA(text string) CDATAText {
 
 // GenerateNonce 方法生成随机数
 func GenerateNonce() string {
-	r := rand.New(rand.NewSource(time.Now().Unix()))
-	return fmt.Sprintf("%d", r.Int31())
+	maxVal := big.NewInt(1<<31 - 1)
+	n, err := rand.Int(rand.Reader, maxVal)
+	if err != nil {
+		return fmt.Sprintf("%d", time.Now().UnixNano())
+	}
+	return n.String()
 }
+
 
 // GenerateTimestamp 方法生成时间戳
 func GenerateTimestamp() int {

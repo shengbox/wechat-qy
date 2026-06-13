@@ -21,7 +21,7 @@ const (
 
 // 获取订单列表
 func (s *Suite) ListOrder(corpId string) (*OrderListRes, error) {
-	token, err := s.tokener.Token()
+	token, err := s.providerToken()
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +44,7 @@ func (s *Suite) ListOrder(corpId string) (*OrderListRes, error) {
 
 // 获取订单详情
 func (s *Suite) GetOrder(orderID string) (*GetOrderResp, error) {
-	token, err := s.tokener.Token()
+	token, err := s.providerToken()
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +65,7 @@ func (s *Suite) GetOrder(orderID string) (*GetOrderResp, error) {
 
 // 获取订单中的账号列表
 func (s *Suite) ListOrderAccount(orderID string) (*OrderAccountRes, error) {
-	token, err := s.tokener.Token()
+	token, err := s.providerToken()
 	if err != nil {
 		return nil, err
 	}
@@ -86,7 +86,7 @@ func (s *Suite) ListOrderAccount(orderID string) (*OrderAccountRes, error) {
 
 // 获取企业的账号列表
 func (s *Suite) ListActivedAccount(corpID string) (*ActivedList, error) {
-	token, err := s.tokener.Token()
+	token, err := s.providerToken()
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +108,7 @@ func (s *Suite) ListActivedAccount(corpID string) (*ActivedList, error) {
 
 // 获取成员的激活详情
 func (s *Suite) GetActiveInfoByUser(corpID, userID string) (*ActiveInfoRes, error) {
-	token, err := s.tokener.Token()
+	token, err := s.providerToken()
 	if err != nil {
 		return nil, err
 	}
@@ -130,7 +130,7 @@ func (s *Suite) GetActiveInfoByUser(corpID, userID string) (*ActiveInfoRes, erro
 
 // 获取激活码详情
 func (s *Suite) GetActiveInfoByCode(corpID, activeCode string) (*CodeActiveInfoRes, error) {
-	token, err := s.tokener.Token()
+	token, err := s.providerToken()
 	if err != nil {
 		return nil, err
 	}
@@ -152,7 +152,7 @@ func (s *Suite) GetActiveInfoByCode(corpID, activeCode string) (*CodeActiveInfoR
 
 // 转移激活码
 func (s *Suite) TransferLicense(corpID, handoverUserid, takeoverUserid string) (*[]TransferResult, error) {
-	token, err := s.tokener.Token()
+	token, err := s.providerToken()
 	if err != nil {
 		return nil, err
 	}
@@ -179,7 +179,7 @@ func (s *Suite) TransferLicense(corpID, handoverUserid, takeoverUserid string) (
 }
 
 func (s *Suite) GetAppLicenseInfo(suiteID, corpID string) (*AppLicenseInfoResp, error) {
-	token, err := s.tokener.Token()
+	token, err := s.providerToken()
 	if err != nil {
 		return nil, err
 	}

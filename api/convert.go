@@ -2,8 +2,9 @@ package api
 
 import (
 	"encoding/json"
-	"log"
 	"net/url"
+
+	"github.com/shengbox/wechat-qy/base"
 )
 
 const (
@@ -29,8 +30,9 @@ func (a *API) GetNewExternalUserid(externalUseridList []string) (*NewExternalUse
 	if err != nil {
 		return nil, err
 	}
-	log.Println(string(body))
+	base.GetLogger().Println(string(body))
 	result := &NewExternalUseridRes{}
 	err = json.Unmarshal(body, result)
 	return result, err
 }
+

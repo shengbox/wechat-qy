@@ -6,7 +6,6 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
-	"log"
 	"net/url"
 
 	"github.com/go-resty/resty/v2"
@@ -42,14 +41,16 @@ const (
 
 // Suite 结构体包含了应用套件的相关操作
 type Suite struct {
-	id             string
-	secret         string
-	ticket         string
-	token          string
-	encodingAESKey string
-	msgCrypter     crypter.MessageCrypter
-	tokener        *base.Tokener
-	client         *base.Client
+	id              string
+	secret          string
+	ticket          string
+	token           string
+	encodingAESKey  string
+	msgCrypter      crypter.MessageCrypter
+	tokener         *base.Tokener
+	providerTokener *base.Tokener
+	client          *base.Client
+	restyClient     *resty.Client
 }
 
 // New 方法用于创建 Suite 实例
@@ -66,9 +67,59 @@ func New(suiteID, suiteSecret, suiteToken, suiteEncodingAESKey string) *Suite {
 
 	suite.client = base.NewClient(suite)
 	suite.tokener = base.NewTokener(suite)
+	suite.restyClient = resty.New()
 
 	return suite
 }
+
+// SetProvider 方法用于设置服务商信息，以获取正确的 provider_access_token
+func (s *Suite) SetProvider(corpID, providerSecret string) {
+	s.providerTokener = base.NewTokener(&providerTokenFetcher{
+		suite:          s,
+		corpID:         corpID,
+		providerSecret: providerSecret,
+	})
+}
+
+func (s *Suite) providerToken() (string, error) {
+	if s.providerTokener != nil {
+		return s.providerTokener.Token()
+	}
+	return s.tokener.Token()
+}
+
+type providerTokenFetcher struct {
+	suite          *Suite
+	corpID         string
+	providerSecret string
+}
+
+func (f *providerTokenFetcher) FetchToken() (token string, expiresIn int64, err error) {
+	buf, _ := json.Marshal(map[string]string{
+		"corpid":          f.corpID,
+		"provider_secret": f.providerSecret,
+	})
+
+	body, err := f.suite.client.PostJSON("https://qyapi.weixin.qq.com/cgi-bin/service/get_provider_token", buf)
+	if err != nil {
+		return
+	}
+
+	tokenInfo := &struct {
+		Token     string `json:"provider_access_token"`
+		ExpiresIn int64  `json:"expires_in"`
+	}{}
+
+	if err = json.Unmarshal(body, tokenInfo); err != nil {
+		return
+	}
+
+	token = tokenInfo.Token
+	expiresIn = tokenInfo.ExpiresIn
+
+	return
+}
+
 
 // Retriable 方法实现了套件在发起请求遇到 token 错误时，先刷新 token 然后再次发起请求的逻辑
 func (s *Suite) Retriable(reqURL string, body []byte) (bool, string, error) {
@@ -248,7 +299,7 @@ func (s *Suite) FetchToken() (token string, expiresIn int64, err error) {
 	expiresIn = tokenInfo.ExpiresIn
 
 	if token == "" {
-		log.Println(string(body))
+		base.GetLogger().Println(string(body))
 	}
 
 	return
@@ -355,7 +406,7 @@ func (s *Suite) GetPermanentCode(authCode string) (PermanentCodeInfo, error) {
 	result := PermanentCodeInfo{}
 	err = json.Unmarshal(body, &result)
 	if err != nil {
-		log.Println("GetPermanentCode", string(body))
+		base.GetLogger().Println("GetPermanentCode", string(body))
 	}
 
 	return result, err
@@ -478,7 +529,7 @@ func (s *Suite) fetchCorpToken(corpID, permanentCode string) (*corpTokenInfo, er
 }
 
 func (s *Suite) ActiveAccount(corpID, activeCode, userid string) (*BaseResp, error) {
-	token, err := s.tokener.Token()
+	token, err := s.providerToken()
 	if err != nil {
 		return nil, err
 	}
@@ -542,7 +593,7 @@ func (s *Suite) GetAdminList(corpID, agentId string) ([]*Admin, error) {
 
 // GetRegisterCode 获取注册码
 func (s *Suite) GetRegisterCode(templateId string) (*RegisterCodeInfo, error) {
-	token, err := s.tokener.Token()
+	token, err := s.providerToken()
 	if err != nil {
 		return nil, err
 	}
@@ -570,7 +621,7 @@ func (s *Suite) GetRegisterCode(templateId string) (*RegisterCodeInfo, error) {
 func (s *Suite) GetRegisterURI(templateId string) (string, error) {
 	registerCodeInfo, err := s.GetRegisterCode(templateId)
 	if err != nil {
-		log.Println(err)
+		base.GetLogger().Println(err)
 		return "", err
 	}
 
@@ -605,7 +656,7 @@ func (s *Suite) Getuserinfo3rd(code string) (*UserInfo3RD, error) {
 		return nil, err
 	}
 	var result UserInfo3RD
-	_, err = resty.New().R().SetResult(&result).SetQueryParams(map[string]string{
+	_, err = s.restyClient.R().SetResult(&result).SetQueryParams(map[string]string{
 		"suite_access_token": token,
 		"code":               code,
 	}).Get(getuserinfo3rdURI)
@@ -622,7 +673,7 @@ func (s *Suite) Getuserinfo3rdAuth(code string) (*UserInfo3RDAuth, error) {
 		return nil, err
 	}
 	var result UserInfo3RDAuth
-	resp, err := resty.New().R().SetResult(&result).SetQueryParams(map[string]string{
+	resp, err := s.restyClient.R().SetResult(&result).SetQueryParams(map[string]string{
 		"suite_access_token": token,
 		"code":               code,
 	}).Get(getuserinfo3rdAuthURI)
@@ -641,7 +692,7 @@ func (s *Suite) Getuserdetail3rd(userTicket string) (*UserInfoDetail3RD, error) 
 		return nil, err
 	}
 	var result UserInfoDetail3RD
-	_, err = resty.New().R().SetResult(&result).SetQueryParam("suite_access_token", token).SetBody(map[string]string{
+	_, err = s.restyClient.R().SetResult(&result).SetQueryParam("suite_access_token", token).SetBody(map[string]string{
 		"user_ticket": userTicket,
 	}).Post(getuserdetail3rdURI)
 
@@ -658,7 +709,7 @@ func (s *Suite) GetLoginInfo(authCode string) (*LoginInfo, error) {
 		return nil, err
 	}
 	var result LoginInfo
-	_, err = resty.New().R().SetResult(&result).SetQueryParam("access_token", token).SetBody(map[string]string{
+	_, err = s.restyClient.R().SetResult(&result).SetQueryParam("access_token", token).SetBody(map[string]string{
 		"auth_code": authCode,
 	}).Post(getLoginInfoURI)
 
@@ -670,11 +721,11 @@ func (s *Suite) GetLoginInfo(authCode string) (*LoginInfo, error) {
 
 // ContactIdTranslate 获取转义文件url
 func (s *Suite) ContactIdTranslate(corpid string, fileByte []byte) (string, error) {
-	token, err := s.tokener.Token()
+	token, err := s.providerToken()
 	if err != nil {
 		return "", err
 	}
-	client := resty.New()
+	client := s.restyClient
 	var media MediaInfo
 	_, err = client.R().SetResult(&media).
 		SetQueryParam("provider_access_token", token).SetQueryParam("type", "file").
@@ -706,12 +757,12 @@ func (s *Suite) ContactIdTranslate(corpid string, fileByte []byte) (string, erro
 
 // GetJobResultURI 获取任务结果
 func (s *Suite) GetJobResultURI(jobID string) (*JobResult, error) {
-	token, err := s.tokener.Token()
+	token, err := s.providerToken()
 	if err != nil {
 		return nil, err
 	}
 	var result JobResult
-	_, err = resty.New().R().SetResult(&result).
+	_, err = s.restyClient.R().SetResult(&result).
 		SetQueryParam("provider_access_token", token).
 		SetQueryParam("jobid", jobID).Get(getJobResultURI)
 	if err != nil {

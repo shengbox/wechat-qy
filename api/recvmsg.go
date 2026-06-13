@@ -3,7 +3,6 @@ package api
 import (
 	"encoding/xml"
 	"fmt"
-	"log"
 
 	"github.com/shengbox/wechat-qy/base"
 )
@@ -351,7 +350,7 @@ func (h *recvMsgHandler) Parse(body []byte, signature, timestamp, nonce string) 
 		case ChangeExternalChatEvent:
 			data = &RecvChangeExternalChat{}
 		default:
-			log.Println("origData=", string(origData))
+			base.GetLogger().Println("origData=", string(origData))
 			return origData, fmt.Errorf("unknown event type: %s", probeData.Event)
 		}
 	default:
