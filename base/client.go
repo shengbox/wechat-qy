@@ -7,6 +7,7 @@ import (
 	"mime"
 	"mime/multipart"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -19,6 +20,7 @@ type Retrier interface {
 type Client struct {
 	httpClient *http.Client
 	api        interface{}
+	BaseURI    string // Custom proxy BaseURI
 }
 
 // NewClient 方法用于创建 Client 实例
@@ -29,6 +31,18 @@ func NewClient(api interface{}) *Client {
 		},
 		api: api,
 	}
+}
+
+// SetBaseURI 允许设置自定义代理的 BaseURI
+func (c *Client) SetBaseURI(uri string) {
+	c.BaseURI = uri
+}
+
+func (c *Client) rewriteURL(rawURL string) string {
+	if c.BaseURI == "" {
+		return rawURL
+	}
+	return strings.Replace(rawURL, "https://qyapi.weixin.qq.com", c.BaseURI, 1)
 }
 
 // SetHTTPClient 允许用户设置自定义的 http.Client
@@ -51,7 +65,7 @@ func (c *Client) GetHTTPClient() *http.Client {
 
 // GetJSON 方法用于发起 JSON GET 请求
 func (c *Client) GetJSON(url string) ([]byte, error) {
-	reqURL := url
+	reqURL := c.rewriteURL(url)
 	hasRetried := false
 	retriable := false
 RETRY:
@@ -84,7 +98,7 @@ RETRY:
 
 // PostJSON 方法用于发起 JSON POST 请求
 func (c *Client) PostJSON(url string, data []byte) ([]byte, error) {
-	reqURL := url
+	reqURL := c.rewriteURL(url)
 	hasRetried := false
 	retriable := false
 RETRY:
@@ -135,7 +149,7 @@ func (c *Client) PostMultipart(url, fieldname, filename string, dataReader io.Re
 
 	bodyBytes := bodyBuf.Bytes()
 
-	reqURL := url
+	reqURL := c.rewriteURL(url)
 	hasRetried := false
 	retriable := false
 RETRY:
@@ -172,7 +186,7 @@ RETRY:
 
 // GetMedia 方法专用于从微信服务器获取媒体文件
 func (c *Client) GetMedia(url string) (*http.Response, error) {
-	reqURL := url
+	reqURL := c.rewriteURL(url)
 	hasRetried := false
 	retriable := false
 RETRY:
